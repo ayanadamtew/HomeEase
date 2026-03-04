@@ -12,31 +12,32 @@ const inter = Inter({
 
 export const metadata = {
   title: 'HomeEase — Find Your Perfect Home & Services',
-  description: 'HomeEase connects you with rental properties and trusted local service providers. Browse homes, book cleaning, cooking, childcare, and maintenance services.',
-  keywords: 'rental properties, home services, cleaning, childcare, maintenance, property listings',
+  description: 'HomeEase connects you with rental properties and trusted local service providers.',
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
         <AuthProvider>
           <Toaster
-            position="top-right"
+            position="top-center"
             toastOptions={{
+              duration: 3000,
               style: {
-                background: '#1f2937',
-                color: '#f9fafb',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: '#0F172A',
+                color: '#F8FAFC',
+                borderRadius: '12px',
+                fontSize: '14px',
+                padding: '12px 20px',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
               },
-              success: { iconTheme: { primary: '#34d399', secondary: '#030712' } },
-              error: { iconTheme: { primary: '#f87171', secondary: '#030712' } },
+              success: { iconTheme: { primary: '#10B981', secondary: '#fff' } },
+              error: { iconTheme: { primary: '#EF4444', secondary: '#fff' } },
             }}
           />
           <Navbar />
-          <main className="flex-1 pt-16">
-            {children}
-          </main>
+          <main className="flex-1 pt-[72px]">{children}</main>
           <Footer />
         </AuthProvider>
       </body>
