@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CLIENT
+  PROVIDER
+  LANDLORD
+  ADMIN
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  RENTED
+  UNLISTED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String?
+  name         String
+  phone        String?
+  avatarUrl    String?
+  role         Role     @default(CLIENT)
+  googleId     String?  @unique
+  isVerified   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  properties       Property[]
+  serviceProfile   ServiceProfile?
+  bookingsAsClient Booking[]        @relation("ClientBookings")
+  reviewsWritten   Review[]
+  messagesSent     Message[]
+  conversationsA   Conversation[]   @relation("ParticipantOne")
+  conversationsB   Conversation[]   @relation("ParticipantTwo")
+}
+
+model Property {
+  id            String         @id @default(uuid())
+  landlordId    String
+  title         String
+  description   String
+  pricePerMonth Decimal        @db.Decimal(10, 2)
+  location      String
+  city          String
+  state         String
+  latitude      Float?
+  longitude     Float?
+  bedrooms      Int
+  bathrooms     Int
+  area          Int?
+  amenities     Json           @default("[]")
+  status        PropertyStatus @default(AVAILABLE)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  landlord      User            @relation(fields: [landlordId], references: [id])
+  images        PropertyImage[]
+  reviews       Review[]
+  conversations Conversation[]
+}
+
+model PropertyImage {
+  id           String   @id @default(uuid())
+  propertyId   String
+  imageUrl     String
+  isPrimary    Boolean  @default(false)
+  displayOrder Int      @default(0)
+
+  property     Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model ServiceCategory {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  icon        String?
+  description String?
+
+  profiles    ServiceProfile[]
+}
+
+model ServiceProfile {
+  id              String          @id @default(uuid())
+  userId          String          @unique
+  categoryId      String
+  headline        String
+  bio             String
+  hourlyRate      Decimal         @db.Decimal(8, 2)
+  dailyRate       Decimal?        @db.Decimal(8, 2)
+  availability    Json            @default("{}")
+  yearsExperience Int             @default(0)
+  serviceArea     String
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  user            User            @relation(fields: [userId], references: [id])
+  category        ServiceCategory @relation(fields: [categoryId], references: [id])
+  bookings        Booking[]
+  reviews         Review[]
+}
+
+model Booking {
+  id               String        @id @default(uuid())
+  clientId         String
+  serviceProfileId String
+  startTime        DateTime
+  endTime          DateTime
+  totalPrice       Decimal       @db.Decimal(10, 2)
+  status           BookingStatus @default(PENDING)
+  notes            String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  client           User           @relation("ClientBookings", fields: [clientId], references: [id])
+  serviceProfile   ServiceProfile @relation(fields: [serviceProfileId], references: [id])
+  reviews          Review[]
+  conversations    Conversation[]
+}
+
+model Review {
+  id               String          @id @default(uuid())
+  authorId         String
+  propertyId       String?
+  serviceProfileId String?
+  bookingId        String?
+  rating           Int
+  comment          String
+  createdAt        DateTime        @default(now())
+
+  author           User            @relation(fields: [authorId], references: [id])
+  property         Property?       @relation(fields: [propertyId], references: [id])
+  serviceProfile   ServiceProfile? @relation(fields: [serviceProfileId], references: [id])
+  booking          Booking?        @relation(fields: [bookingId], references: [id])
+}
+
+model Conversation {
+  id               String   @id @default(uuid())
+  participantOneId String
+  participantTwoId String
+  propertyId       String?
+  bookingId        String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  participantOne   User      @relation("ParticipantOne", fields: [participantOneId], references: [id])
+  participantTwo   User      @relation("ParticipantTwo", fields: [participantTwoId], references: [id])
+  property         Property? @relation(fields: [propertyId], references: [id])
+  booking          Booking?  @relation(fields: [bookingId], references: [id])
+  messages         Message[]
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  senderId       String
+  content        String
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation(fields: [senderId], references: [id])
+}
