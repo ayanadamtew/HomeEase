@@ -57,6 +57,77 @@ const getProperties = async (req, res, next) => {
         const skip = (parseInt(page) - 1) * parseInt(limit);
         const take = parseInt(limit);
 
+        const lat = req.query.lat ? parseFloat(req.query.lat) : null;
+        const lng = req.query.lng ? parseFloat(req.query.lng) : null;
+        const radius = req.query.radius ? parseInt(req.query.radius) : 50; // Default 50km radius
+
+        // Geospatial Proximity Search (Haversine Formula) if coordinates are provided
+        if (lat && lng) {
+            // Using raw SQL for the Haversine calculation
+            const propertiesRaw = await prisma.$queryRaw`
+                SELECT id, (
+                    6371 * acos(
+                        cos(radians(${lat})) * cos(radians("latitude")) *
+                        cos(radians("longitude") - radians(${lng})) +
+                        sin(radians(${lat})) * sin(radians("latitude"))
+                    )
+                ) AS distance
+                FROM "Property"
+                WHERE status = ${status || 'AVAILABLE'}
+                HAVING (
+                    6371 * acos(
+                        cos(radians(${lat})) * cos(radians("latitude")) *
+                        cos(radians("longitude") - radians(${lng})) +
+                        sin(radians(${lat})) * sin(radians("latitude"))
+                    )
+                ) <= ${radius}
+                ORDER BY distance ASC
+            `;
+
+            if (propertiesRaw.length === 0) {
+                return res.json({ properties: [], pagination: { page: parseInt(page), limit: take, total: 0, totalPages: 0 } });
+            }
+
+            const propertyIds = propertiesRaw.map(p => p.id);
+            const where = { id: { in: propertyIds } };
+
+            // Apply standard filters to the geospatially filtered result set
+            if (minPrice) where.pricePerMonth = { ...where.pricePerMonth, gte: parseFloat(minPrice) };
+            if (maxPrice) where.pricePerMonth = { ...where.pricePerMonth, lte: parseFloat(maxPrice) };
+            if (bedrooms) where.bedrooms = { gte: parseInt(bedrooms) };
+            if (bathrooms) where.bathrooms = { gte: parseInt(bathrooms) };
+
+            const [properties, total] = await Promise.all([
+                prisma.property.findMany({
+                    where,
+                    skip,
+                    take,
+                    include: {
+                        images: { orderBy: { displayOrder: 'asc' } },
+                        landlord: { select: { id: true, name: true, avatarUrl: true } },
+                        _count: { select: { reviews: true } },
+                    },
+                }),
+                prisma.property.count({ where }),
+            ]);
+
+            // Re-sort the prisma objects by the original distance order
+            const sortedProperties = propertyIds.map(id => properties.find(p => p.id === id)).filter(Boolean);
+
+            const propertiesWithRatings = await Promise.all(
+                sortedProperties.map(async (prop) => {
+                    const avgRating = await prisma.review.aggregate({ where: { propertyId: prop.id }, _avg: { rating: true } });
+                    return { ...prop, avgRating: avgRating._avg.rating || 0 };
+                })
+            );
+
+            return res.json({
+                properties: propertiesWithRatings,
+                pagination: { page: parseInt(page), limit: take, total, totalPages: Math.ceil(total / take) },
+            });
+        }
+
+        // --- Standard Text-based filtering (no geo) ---
         // Build filter conditions
         const where = { status: status || 'AVAILABLE' };
 

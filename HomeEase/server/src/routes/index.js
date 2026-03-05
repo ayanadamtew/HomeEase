@@ -14,5 +14,6 @@ router.use('/services', require('./services'));
 router.use('/bookings', require('./bookings'));
 router.use('/reviews', require('./reviews'));
 router.use('/messages', require('./messages'));
+router.use('/admin', require('./admin'));
 
 module.exports = router;

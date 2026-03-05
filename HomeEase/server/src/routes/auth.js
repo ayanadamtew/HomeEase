@@ -56,6 +56,7 @@ router.post('/login', loginValidation, validate, authController.login);
 // Protected routes
 router.get('/me', authenticate, authController.getMe);
 router.put('/profile', authenticate, authController.updateProfile);
+router.put('/kyc', authenticate, authController.submitKyc);
 router.put(
     '/change-password',
     authenticate,

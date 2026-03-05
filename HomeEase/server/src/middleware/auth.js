@@ -10,7 +10,7 @@ const authenticate = passport.authenticate('jwt', { session: false });
  * Role-based access control middleware.
  * Usage: authorize('ADMIN', 'LANDLORD')
  */
-const authorize = (...roles) => {
+const authorizeRoles = (...roles) => {
     return (req, res, next) => {
         if (!req.user) {
             return res.status(401).json({ message: 'Authentication required' });
@@ -24,4 +24,4 @@ const authorize = (...roles) => {
     };
 };
 
-module.exports = { authenticate, authorize };
+module.exports = { authenticate, authorizeRoles };

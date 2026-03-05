@@ -72,6 +72,88 @@ const getProviders = async (req, res, next) => {
         const skip = (parseInt(page) - 1) * parseInt(limit);
         const take = parseInt(limit);
 
+        const lat = req.query.lat ? parseFloat(req.query.lat) : null;
+        const lng = req.query.lng ? parseFloat(req.query.lng) : null;
+        const radius = req.query.radius ? parseInt(req.query.radius) : 50; // Default 50km radius
+
+        // Geospatial Proximity Search (Haversine Formula) if coordinates provided
+        if (lat && lng) {
+            const providersRaw = await prisma.$queryRaw`
+                SELECT id, (
+                    6371 * acos(
+                        cos(radians(${lat})) * cos(radians("latitude")) *
+                        cos(radians("longitude") - radians(${lng})) +
+                        sin(radians(${lat})) * sin(radians("latitude"))
+                    )
+                ) AS distance
+                FROM "ServiceProfile"
+                WHERE "isActive" = true
+                HAVING (
+                    6371 * acos(
+                        cos(radians(${lat})) * cos(radians("latitude")) *
+                        cos(radians("longitude") - radians(${lng})) +
+                        sin(radians(${lat})) * sin(radians("latitude"))
+                    )
+                ) <= ${radius}
+                ORDER BY distance ASC
+            `;
+
+            if (providersRaw.length === 0) {
+                return res.json({ providers: [], pagination: { page: parseInt(page), limit: take, total: 0, totalPages: 0 } });
+            }
+
+            const providerIds = providersRaw.map(p => p.id);
+            const where = { id: { in: providerIds }, isActive: true };
+
+            if (search) {
+                where.OR = [
+                    { serviceType: { contains: search, mode: 'insensitive' } },
+                    { headline: { contains: search, mode: 'insensitive' } },
+                    { bio: { contains: search, mode: 'insensitive' } },
+                    { user: { name: { contains: search, mode: 'insensitive' } } },
+                ];
+            }
+            if (category) {
+                where.OR = [
+                    { serviceType: { contains: category, mode: 'insensitive' } },
+                    { category: { name: { contains: category, mode: 'insensitive' } } },
+                ];
+            }
+            if (minRate) where.hourlyRate = { ...where.hourlyRate, gte: parseFloat(minRate) };
+            if (maxRate) where.hourlyRate = { ...where.hourlyRate, lte: parseFloat(maxRate) };
+            if (serviceArea) where.serviceArea = { contains: serviceArea, mode: 'insensitive' };
+
+            const [providers, total] = await Promise.all([
+                prisma.serviceProfile.findMany({
+                    where,
+                    skip,
+                    take,
+                    include: {
+                        user: { select: { id: true, name: true, avatarUrl: true } },
+                        category: true,
+                        _count: { select: { reviews: true, bookings: true } },
+                    },
+                }),
+                prisma.serviceProfile.count({ where }),
+            ]);
+
+            // Re-sort the prisma objects by the original distance order
+            const sortedProviders = providerIds.map(id => providers.find(p => p.id === id)).filter(Boolean);
+
+            const providersWithRatings = await Promise.all(
+                sortedProviders.map(async (prov) => {
+                    const avgRating = await prisma.review.aggregate({ where: { serviceProfileId: prov.id }, _avg: { rating: true } });
+                    return { ...prov, avgRating: avgRating._avg.rating || 0 };
+                })
+            );
+
+            return res.json({
+                providers: providersWithRatings,
+                pagination: { page: parseInt(page), limit: take, total, totalPages: Math.ceil(total / take) },
+            });
+        }
+
+        // --- Standard Text-based filtering (no geo) ---
         const where = { isActive: true };
 
         if (search) {

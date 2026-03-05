@@ -27,6 +27,26 @@ enum BookingStatus {
   CANCELLED
 }
 
+enum TransactionStatus {
+  PENDING
+  HELD_IN_ESCROW
+  RELEASED
+  REFUNDED
+  FAILED
+}
+
+enum TransactionType {
+  SERVICE_BOOKING
+  RENTAL_DEPOSIT
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -35,18 +55,23 @@ model User {
   phone        String?
   avatarUrl    String?
   role         Role     @default(CLIENT)
-  googleId     String?  @unique
-  isVerified   Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  googleId            String?  @unique
+  isVerified          Boolean  @default(false)
+  verificationStatus  VerificationStatus @default(UNVERIFIED)
+  identityDocumentUrl String?  
+  stripeAccountId     String?  @unique
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   properties       Property[]
   serviceProfile   ServiceProfile?
   bookingsAsClient Booking[]        @relation("ClientBookings")
   reviewsWritten   Review[]
-  messagesSent     Message[]
-  conversationsA   Conversation[]   @relation("ParticipantOne")
-  conversationsB   Conversation[]   @relation("ParticipantTwo")
+  messagesSent       Message[]
+  conversationsA     Conversation[]   @relation("ParticipantOne")
+  conversationsB     Conversation[]   @relation("ParticipantTwo")
+  transactionsAsPayer Transaction[]   @relation("PayerTransactions")
+  transactionsAsPayee Transaction[]   @relation("PayeeTransactions")
 }
 
 model Property {
@@ -72,6 +97,7 @@ model Property {
   images        PropertyImage[]
   reviews       Review[]
   conversations Conversation[]
+  transactions  Transaction[]
 }
 
 model PropertyImage {
@@ -105,6 +131,9 @@ model ServiceProfile {
   availability    Json             @default("{}")
   yearsExperience Int              @default(0)
   serviceArea     String
+  latitude        Float?
+  longitude       Float?
+  serviceRadiusKm Int              @default(10)
   isActive        Boolean          @default(true)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -131,6 +160,7 @@ model Booking {
   serviceProfile   ServiceProfile @relation(fields: [serviceProfileId], references: [id])
   reviews          Review[]
   conversations    Conversation[]
+  transaction      Transaction?
 }
 
 model Review {
@@ -175,4 +205,28 @@ model Message {
 
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   sender         User         @relation(fields: [senderId], references: [id])
+}
+
+model Transaction {
+  id                    String            @id @default(uuid())
+  amount                Decimal           @db.Decimal(10, 2)
+  platformFee           Decimal           @db.Decimal(10, 2)
+  currency              String            @default("ETB")
+  status                TransactionStatus @default(PENDING)
+  type                  TransactionType
+  stripePaymentIntentId String?           @unique
+  stripeTransferId      String?           @unique
+  
+  payerId               String
+  payeeId               String
+  bookingId             String?           @unique
+  propertyId            String?
+
+  payer                 User              @relation("PayerTransactions", fields: [payerId], references: [id])
+  payee                 User              @relation("PayeeTransactions", fields: [payeeId], references: [id])
+  booking               Booking?          @relation(fields: [bookingId], references: [id])
+  property              Property?         @relation(fields: [propertyId], references: [id])
+
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
 }

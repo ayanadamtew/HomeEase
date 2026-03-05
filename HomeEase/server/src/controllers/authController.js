@@ -157,6 +157,35 @@ const updateProfile = async (req, res, next) => {
 };
 
 /**
+ * PUT /api/auth/kyc
+ * Submit KYC documents for identity verification.
+ */
+const submitKyc = async (req, res, next) => {
+    try {
+        const { identityDocumentUrl } = req.body;
+
+        if (!identityDocumentUrl) {
+            return res.status(400).json({ message: 'Identity document URL is required' });
+        }
+
+        const user = await prisma.user.update({
+            where: { id: req.user.id },
+            data: {
+                identityDocumentUrl,
+                verificationStatus: 'PENDING',
+            },
+        });
+
+        res.json({
+            message: 'KYC documents submitted successfully. Pending admin approval.',
+            user: sanitizeUser(user),
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
  * PUT /api/auth/change-password
  * Change the authenticated user's password.
  */
@@ -205,5 +234,6 @@ module.exports = {
     getMe,
     updateProfile,
     changePassword,
+    submitKyc,
     googleCallback,
 };

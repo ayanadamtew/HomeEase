@@ -1,7 +1,7 @@
 const express = require('express');
 const { body } = require('express-validator');
 const validate = require('../middleware/validate');
-const { authenticate, authorize } = require('../middleware/auth');
+const { authenticate, authorizeRoles } = require('../middleware/auth');
 const propertyController = require('../controllers/propertyController');
 
 const router = express.Router();
@@ -22,7 +22,7 @@ const propertyValidation = [
 router.get('/', propertyController.getProperties);
 
 // ─── Protected Routes ────────────────────────────────────────────
-router.post('/', authenticate, authorize('LANDLORD', 'ADMIN'), propertyValidation, validate, propertyController.createProperty);
+router.post('/', authenticate, authorizeRoles('LANDLORD', 'ADMIN'), propertyValidation, validate, propertyController.createProperty);
 router.get('/user/my-listings', authenticate, propertyController.getMyListings);
 
 // ─── Param Routes (must come after static routes) ────────────────

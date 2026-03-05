@@ -39,6 +39,25 @@ const createBooking = async (req, res, next) => {
                 notes,
                 status: 'PENDING',
             },
+        });
+
+        // Calculate a 10% platform fee
+        const platformFee = totalPrice * 0.10;
+
+        const transaction = await prisma.transaction.create({
+            data: {
+                amount: totalPrice,
+                platformFee,
+                type: 'SERVICE_BOOKING',
+                status: 'HELD_IN_ESCROW',
+                payerId: req.user.id,
+                payeeId: profile.userId,
+                bookingId: booking.id,
+            }
+        });
+
+        const bookingWithDetails = await prisma.booking.findUnique({
+            where: { id: booking.id },
             include: {
                 serviceProfile: {
                     include: {
@@ -50,7 +69,7 @@ const createBooking = async (req, res, next) => {
             },
         });
 
-        res.status(201).json({ message: 'Booking request sent', booking });
+        res.status(201).json({ message: 'Booking request sent (Funds held in escrow)', booking: bookingWithDetails, transaction });
     } catch (err) {
         next(err);
     }
@@ -156,10 +175,28 @@ const updateBookingStatus = async (req, res, next) => {
                         category: true,
                     },
                 },
+                transaction: true,
             },
         });
 
-        res.json({ message: `Booking ${status.toLowerCase()}`, booking: updated });
+        let message = `Booking ${status.toLowerCase()}`;
+
+        // Escrow Release Logic
+        if (status === 'COMPLETED' && updated.transaction) {
+            await prisma.transaction.update({
+                where: { id: updated.transaction.id },
+                data: { status: 'RELEASED' }
+            });
+            message += ' and funds released from escrow';
+        } else if (status === 'CANCELLED' && updated.transaction) {
+            await prisma.transaction.update({
+                where: { id: updated.transaction.id },
+                data: { status: 'REFUNDED' }
+            });
+            message += ' and funds refunded';
+        }
+
+        res.json({ message, booking: updated });
     } catch (err) {
         next(err);
     }
