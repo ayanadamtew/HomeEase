@@ -75,7 +75,6 @@ export default function DashboardPage() {
 
     return (
         <div className="min-h-screen" style={{ background: '#F8FAFC' }}>
-            {/* Header */}
             <div className="bg-white border-b border-slate-100">
                 <div className="max-w-7xl mx-auto px-5 sm:px-8 py-8">
                     <div className="flex flex-wrap items-center justify-between gap-4">
@@ -89,7 +88,6 @@ export default function DashboardPage() {
                             </div>
                         </div>
 
-                        {/* Role-specific quick action */}
                         <RoleQuickAction role={user.role} />
                     </div>
 
@@ -105,21 +103,16 @@ export default function DashboardPage() {
             </div>
 
             <div className="max-w-7xl mx-auto px-5 sm:px-8 py-8">
-                {/* ── Overview ───────────────────────────────────── */}
                 {activeTab === 'overview' && (
                     <div className="space-y-6 animate-fade-in">
-                        {/* Stats */}
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             <MetricCard title="Pending" value={pending.length} icon={<Clock className="w-5 h-5" />} color="amber" />
                             <MetricCard title="Confirmed" value={confirmed.length} icon={<CheckCircle className="w-5 h-5" />} color="emerald" />
                             <MetricCard title="Total Bookings" value={bookings.length} icon={<Calendar className="w-5 h-5" />} color="indigo" />
                             <MetricCard title={user.role === 'PROVIDER' ? 'Revenue' : 'Unread'} value={user.role === 'PROVIDER' ? `$${revenue.toFixed(0)}` : unread} icon={user.role === 'PROVIDER' ? <DollarSign className="w-5 h-5" /> : <MessageSquare className="w-5 h-5" />} color="blue" />
                         </div>
-
-                        {/* Role-specific quick actions */}
                         <RoleQuickCards role={user.role} propertiesCount={properties.length} />
 
-                        {/* Pending actions */}
                         {pending.length > 0 && (
                             <div className="card p-6 !rounded-3xl">
                                 <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
@@ -134,7 +127,6 @@ export default function DashboardPage() {
                     </div>
                 )}
 
-                {/* ── Bookings ────────────────────────────────────── */}
                 {activeTab === 'bookings' && (
                     <div className="space-y-3 animate-fade-in">
                         {bookings.length === 0 ? (
@@ -147,7 +139,6 @@ export default function DashboardPage() {
                     </div>
                 )}
 
-                {/* ── Properties (landlord / admin) ───────────────── */}
                 {activeTab === 'properties' && (
                     <div className="animate-fade-in">
                         <div className="flex items-center justify-between mb-5">
@@ -166,7 +157,6 @@ export default function DashboardPage() {
                     </div>
                 )}
 
-                {/* ── Service Profile (provider / admin) ──────────── */}
                 {activeTab === 'service' && (
                     <div className="animate-fade-in max-w-lg">
                         <div className="card p-8 !rounded-3xl text-center">
@@ -194,7 +184,6 @@ export default function DashboardPage() {
                     </div>
                 )}
 
-                {/* ── Messages ────────────────────────────────────── */}
                 {activeTab === 'messages' && (
                     <div className="space-y-3 animate-fade-in">
                         {conversations.length === 0 ? (
@@ -220,8 +209,6 @@ export default function DashboardPage() {
         </div>
     );
 }
-
-// ── Sub-components ─────────────────────────────────────────────────
 
 function RoleBadge({ role }) {
     const styles = { CLIENT: 'text-sky-600', LANDLORD: 'text-emerald-600', PROVIDER: 'text-violet-600', ADMIN: 'text-red-600' };

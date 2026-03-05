@@ -13,7 +13,7 @@ export default function Navbar() {
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-100" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
             <div className="max-w-7xl mx-auto px-5 sm:px-8">
                 <div className="flex items-center justify-between h-[72px]">
-                    {/* Logo */}
+
                     <Link href="/" className="flex items-center gap-2.5 group">
                         <div className="w-9 h-9 rounded-xl bg-indigo-500 flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:bg-indigo-600 transition-all duration-200">
                             <Home className="w-[18px] h-[18px] text-white" />
@@ -23,7 +23,7 @@ export default function Navbar() {
                         </span>
                     </Link>
 
-                    {/* Desktop Nav */}
+
                     <div className="hidden md:flex items-center gap-1">
                         <NavLink href="/properties" icon={<Building2 className="w-4 h-4" />}>Properties</NavLink>
                         <NavLink href="/services" icon={<Wrench className="w-4 h-4" />}>Services</NavLink>
@@ -31,7 +31,7 @@ export default function Navbar() {
                         {user && <NavLink href="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />}>Dashboard</NavLink>}
                     </div>
 
-                    {/* Desktop Auth */}
+
                     <div className="hidden md:flex items-center gap-3">
                         {loading ? (
                             <div className="w-8 h-8 rounded-full bg-slate-100 animate-pulse" />
@@ -56,14 +56,14 @@ export default function Navbar() {
                         )}
                     </div>
 
-                    {/* Mobile Menu Button */}
+
                     <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 rounded-xl hover:bg-slate-50 text-slate-600">
                         {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                     </button>
                 </div>
             </div>
 
-            {/* Mobile Menu */}
+
             {mobileOpen && (
                 <div className="md:hidden bg-white border-b border-slate-100 pb-4 animate-slide-down">
                     <div className="px-5 pt-2 space-y-1">
