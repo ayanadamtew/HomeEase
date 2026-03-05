@@ -97,7 +97,7 @@ function ProviderCard({ provider }) {
                 <p className="text-slate-400 text-sm mt-3 line-clamp-2">{provider.bio}</p>
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
                     <div className="flex items-center gap-2.5 text-sm">
-                        <span className="text-indigo-600 font-bold">${Number(provider.hourlyRate).toFixed(0)}/hr</span>
+                        <span className="text-indigo-600 font-bold">ETB {Number(provider.hourlyRate).toFixed(0)}/hr</span>
                         {provider.avgRating > 0 && <span className="flex items-center gap-1 text-slate-400"><Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />{provider.avgRating.toFixed(1)}</span>}
                     </div>
                     <span className="flex items-center gap-1 text-slate-400 text-xs"><MapPin className="w-3 h-3" />{provider.serviceArea}</span>

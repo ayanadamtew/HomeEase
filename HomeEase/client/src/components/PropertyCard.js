@@ -30,7 +30,7 @@ export default function PropertyCard({ property }) {
 
                     {/* Price Badge */}
                     <div className="absolute bottom-3 left-3 px-3 py-1.5 bg-white/95 backdrop-blur-sm rounded-xl shadow-md">
-                        <span className="text-indigo-600 font-bold text-[15px]">${Number(property.pricePerMonth).toLocaleString()}</span>
+                        <span className="text-indigo-600 font-bold text-[15px]">ETB {Number(property.pricePerMonth).toLocaleString()}</span>
                         <span className="text-slate-400 text-xs font-medium">/mo</span>
                     </div>
 

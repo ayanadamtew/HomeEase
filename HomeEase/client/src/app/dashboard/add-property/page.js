@@ -38,15 +38,15 @@ export default function AddPropertyPage() {
                     <div><label className="text-sm font-medium text-slate-700 block mb-1.5">Description</label><textarea value={form.description} onChange={update('description')} rows={4} required placeholder="Describe your property..." className="input resize-none" /></div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <Field label="Price/Month ($)" type="number" value={form.pricePerMonth} onChange={update('pricePerMonth')} placeholder="1500" required />
+                        <Field label="Price/Month (ETB)" type="number" value={form.pricePerMonth} onChange={update('pricePerMonth')} placeholder="15000" required />
                         <Field label="Bedrooms" type="number" value={form.bedrooms} onChange={update('bedrooms')} min="0" required />
                         <Field label="Bathrooms" type="number" value={form.bathrooms} onChange={update('bathrooms')} min="0" required />
                     </div>
 
-                    <Field label="Street Address" value={form.location} onChange={update('location')} placeholder="123 Main St" required />
+                    <Field label="Street Address" value={form.location} onChange={update('location')} placeholder="Bole Road, DB Building" required />
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <Field label="City" value={form.city} onChange={update('city')} placeholder="New York" required />
-                        <Field label="State" value={form.state} onChange={update('state')} placeholder="NY" required />
+                        <Field label="City" value={form.city} onChange={update('city')} placeholder="Addis Ababa" required />
+                        <Field label="State / Region" value={form.state} onChange={update('state')} placeholder="Addis Ababa" required />
                         <Field label="Area (sqft)" type="number" value={form.area} onChange={update('area')} placeholder="Optional" />
                     </div>
 

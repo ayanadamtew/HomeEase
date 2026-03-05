@@ -188,11 +188,11 @@ export default function ProviderProfilePage() {
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <label className="text-sm font-medium text-slate-700 block mb-1.5">Hourly Rate ($) *</label>
+                                <label className="text-sm font-medium text-slate-700 block mb-1.5">Hourly Rate (ETB) *</label>
                                 <input type="number" value={form.hourlyRate} onChange={update('hourlyRate')} required min="1" placeholder="25" className="input" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-slate-700 block mb-1.5">Daily Rate ($)</label>
+                                <label className="text-sm font-medium text-slate-700 block mb-1.5">Daily Rate (ETB)</label>
                                 <input type="number" value={form.dailyRate} onChange={update('dailyRate')} min="1" placeholder="Optional" className="input" />
                             </div>
                             <div>
@@ -210,7 +210,7 @@ export default function ProviderProfilePage() {
                         <div>
                             <label className="text-sm font-medium text-slate-700 block mb-1.5">Service Area *</label>
                             <input value={form.serviceArea} onChange={update('serviceArea')} required
-                                placeholder="e.g. Manhattan, NY — or — Brooklyn & Queens" className="input" />
+                                placeholder="e.g. Bole, Addis Ababa — or — Kazanchis" className="input" />
                         </div>
                         <div>
                             <label className="text-sm font-medium text-slate-700 block mb-1.5">Availability</label>

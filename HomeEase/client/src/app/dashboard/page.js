@@ -109,7 +109,7 @@ export default function DashboardPage() {
                             <MetricCard title="Pending" value={pending.length} icon={<Clock className="w-5 h-5" />} color="amber" />
                             <MetricCard title="Confirmed" value={confirmed.length} icon={<CheckCircle className="w-5 h-5" />} color="emerald" />
                             <MetricCard title="Total Bookings" value={bookings.length} icon={<Calendar className="w-5 h-5" />} color="indigo" />
-                            <MetricCard title={user.role === 'PROVIDER' ? 'Revenue' : 'Unread'} value={user.role === 'PROVIDER' ? `$${revenue.toFixed(0)}` : unread} icon={user.role === 'PROVIDER' ? <DollarSign className="w-5 h-5" /> : <MessageSquare className="w-5 h-5" />} color="blue" />
+                            <MetricCard title={user.role === 'PROVIDER' ? 'Revenue' : 'Unread'} value={user.role === 'PROVIDER' ? `ETB ${revenue.toFixed(0)}` : unread} icon={user.role === 'PROVIDER' ? <DollarSign className="w-5 h-5" /> : <MessageSquare className="w-5 h-5" />} color="blue" />
                         </div>
                         <RoleQuickCards role={user.role} propertiesCount={properties.length} />
 
@@ -340,7 +340,7 @@ function BookingRow({ booking, user, onUpdate }) {
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className="text-indigo-600 font-bold text-sm">${Number(booking.totalPrice).toFixed(0)}</span>
+                    <span className="text-indigo-600 font-bold text-sm">ETB {Number(booking.totalPrice).toFixed(0)}</span>
                     <span className={`badge text-xs ${sc[booking.status]}`}>{booking.status.charAt(0) + booking.status.slice(1).toLowerCase()}</span>
                 </div>
             </div>
@@ -369,7 +369,7 @@ function PropertyRow({ property }) {
                     <p className="text-slate-400 text-xs mt-1 flex items-center gap-1"><MapPin className="w-3 h-3" /> {property.city}, {property.state}</p>
                 </div>
                 <div className="text-right">
-                    <p className="text-indigo-600 font-bold text-sm">${Number(property.pricePerMonth).toLocaleString()}/mo</p>
+                    <p className="text-indigo-600 font-bold text-sm">ETB {Number(property.pricePerMonth).toLocaleString()}/mo</p>
                     <span className={`badge text-xs mt-1 ${property.status === 'AVAILABLE' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}>{property.status}</span>
                 </div>
             </div>

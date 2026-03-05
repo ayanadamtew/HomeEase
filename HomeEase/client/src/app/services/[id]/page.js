@@ -67,7 +67,7 @@ export default function ServiceProviderDetailPage() {
                         </div>
                         <div className="mt-6 pt-6 border-t border-slate-100"><h3 className="font-semibold text-slate-900 mb-2">About</h3><p className="text-slate-500 leading-relaxed">{provider.bio}</p></div>
                         <div className="grid grid-cols-3 gap-3 mt-6">
-                            <StatBox label="Hourly" value={`$${Number(provider.hourlyRate).toFixed(0)}`} icon={<DollarSign className="w-4 h-4 text-indigo-400" />} />
+                            <StatBox label="Hourly" value={`ETB ${Number(provider.hourlyRate).toFixed(0)}`} icon={<DollarSign className="w-4 h-4 text-indigo-400" />} />
                             {provider.dailyRate && <StatBox label="Daily" value={`$${Number(provider.dailyRate).toFixed(0)}`} icon={<Calendar className="w-4 h-4 text-indigo-400" />} />}
                             <StatBox label="Bookings" value={provider._count?.bookings || 0} icon={<Calendar className="w-4 h-4 text-indigo-400" />} />
                         </div>

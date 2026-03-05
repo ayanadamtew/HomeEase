@@ -64,8 +64,8 @@ export default function PropertiesPage() {
                         <div className="mt-4 p-5 card animate-slide-down !rounded-2xl">
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                 <FilterInput label="City" value={city} onChange={setCity} placeholder="e.g. New York" />
-                                <FilterInput label="Min Price" value={minPrice} onChange={setMinPrice} placeholder="$0" type="number" />
-                                <FilterInput label="Max Price" value={maxPrice} onChange={setMaxPrice} placeholder="$10,000" type="number" />
+                                <FilterInput label="Min Price" value={minPrice} onChange={setMinPrice} placeholder="0 ETB" type="number" />
+                                <FilterInput label="Max Price" value={maxPrice} onChange={setMaxPrice} placeholder="30000 ETB" type="number" />
                                 <FilterInput label="Min Bedrooms" value={bedrooms} onChange={setBedrooms} placeholder="Any" type="number" />
                             </div>
                             <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">

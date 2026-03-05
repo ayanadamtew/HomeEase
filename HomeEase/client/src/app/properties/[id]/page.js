@@ -86,7 +86,7 @@ export default function PropertyDetailPage() {
                                     <div className="flex items-center gap-1.5 mt-2 text-slate-500"><MapPin className="w-4 h-4 text-indigo-400" />{property.location}, {property.city}, {property.state}</div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-3xl font-bold text-indigo-600">${Number(property.pricePerMonth).toLocaleString()}</div>
+                                    <div className="text-3xl font-bold text-indigo-600">ETB {Number(property.pricePerMonth).toLocaleString()}</div>
                                     <div className="text-slate-400 text-sm">per month</div>
                                 </div>
                             </div>
