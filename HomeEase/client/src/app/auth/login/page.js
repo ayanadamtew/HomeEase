@@ -54,16 +54,6 @@ export default function LoginPage() {
                         {loading ? 'Signing in...' : 'Sign In'}
                     </button>
 
-                    <div className="relative my-2"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div><div className="relative flex justify-center"><span className="bg-white px-3 text-xs text-slate-400 font-medium">DEMO ACCOUNTS</span></div></div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                        {[{ label: 'Client', email: 'client@demo.com', pw: 'demo123' }, { label: 'Landlord', email: 'landlord@demo.com', pw: 'demo123' }, { label: 'Provider', email: 'provider@demo.com', pw: 'demo123' }, { label: 'Admin', email: 'admin@homeease.com', pw: 'admin123' }].map((d) => (
-                            <button type="button" key={d.label} onClick={() => { setEmail(d.email); setPassword(d.pw); }} className="px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-medium text-slate-500 hover:text-indigo-600 hover:border-indigo-100 hover:bg-indigo-50 transition-all">
-                                {d.label}
-                            </button>
-                        ))}
-                    </div>
-
                     <p className="text-center text-slate-500 text-sm pt-2">
                         Don&apos;t have an account? <Link href="/auth/register" className="text-indigo-600 hover:text-indigo-700 font-semibold">Sign up</Link>
                     </p>
