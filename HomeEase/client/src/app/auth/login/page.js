@@ -22,40 +22,39 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-5" style={{ background: '#F8FAFC' }}>
+        <div className="min-h-screen flex items-center justify-center px-5 bg-white">
             <div className="w-full max-w-[420px]">
-                <div className="text-center mb-8">
-                    <Link href="/" className="inline-flex items-center gap-2">
-                        <div className="w-10 h-10 rounded-xl bg-indigo-500 flex items-center justify-center"><Home className="w-5 h-5 text-white" /></div>
-                        <span className="text-xl font-bold text-slate-900 tracking-tight">Home<span className="text-indigo-500">Ease</span></span>
+                <div className="text-center mb-10">
+                    <Link href="/" className="inline-flex items-center gap-3 group">
+                        <div className="w-12 h-12 bg-black flex items-center justify-center border border-black transition-transform group-hover:scale-105"><Home className="w-6 h-6 text-white" /></div>
+                        <span className="text-2xl font-headings text-black tracking-widest uppercase">Home<span className="text-gray-400">Ease</span></span>
                     </Link>
-                    <h1 className="mt-8 text-2xl font-bold text-slate-900 tracking-tight">Welcome back</h1>
-                    <p className="mt-1 text-slate-500 text-sm">Sign in to your account to continue</p>
+                    <h1 className="mt-10 text-[40px] sm:text-[56px] font-headings text-black tracking-tight uppercase leading-none">Welcome back</h1>
+                    <p className="mt-3 text-gray-400 font-bold uppercase tracking-widest text-[10px]">Sign in to your account to continue</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="card p-8 !rounded-3xl space-y-5">
+                <form onSubmit={handleSubmit} className="bg-white border border-black p-10 sm:p-14 space-y-8">
                     <div>
-                        <label className="text-sm font-medium text-slate-700 block mb-1.5">Email</label>
+                        <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Email Address</label>
                         <div className="relative">
-                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
-                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required className="input !pl-11" />
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-black" strokeWidth={3} />
+                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required className="input !pl-12 !py-5 !bg-gray-50 !border-gray-200 focus:!border-black" />
                         </div>
                     </div>
                     <div>
-                        <label className="text-sm font-medium text-slate-700 block mb-1.5">Password</label>
+                        <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Password</label>
                         <div className="relative">
-                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
-                            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required className="input !pl-11" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-black" strokeWidth={3} />
+                            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required className="input !pl-12 !py-5 !bg-gray-50 !border-gray-200 focus:!border-black" />
                         </div>
                     </div>
 
-                    <button type="submit" disabled={loading} className="btn-primary w-full !rounded-xl !py-3.5">
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-                        {loading ? 'Signing in...' : 'Sign In'}
+                    <button type="submit" disabled={loading} className="btn-primary w-full !py-5 uppercase tracking-[0.2em] text-[11px] mt-2">
+                        {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Sign In To Account'}
                     </button>
 
-                    <p className="text-center text-slate-500 text-sm pt-2">
-                        Don&apos;t have an account? <Link href="/auth/register" className="text-indigo-600 hover:text-indigo-700 font-semibold">Sign up</Link>
+                    <p className="text-center text-gray-400 text-xs font-bold uppercase tracking-widest pt-4">
+                        Don&apos;t have an account? <Link href="/auth/register" className="text-black hover:underline">Sign up</Link>
                     </p>
                 </form>
             </div>

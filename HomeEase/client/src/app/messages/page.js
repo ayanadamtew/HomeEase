@@ -38,26 +38,26 @@ function MessagesContent() {
         catch { toast.error('Failed'); } finally { setSending(false); }
     };
 
-    if (authLoading || loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-7 h-7 text-indigo-500 animate-spin" /></div>;
+    if (authLoading || loading) return <div className="min-h-screen flex items-center justify-center font-black uppercase tracking-widest text-gray-400 text-[11px]"><Loader2 className="w-5 h-5 animate-spin mr-3" /> Loading messages...</div>;
     const getOther = (c) => c.participantOne?.id === user?.id ? c.participantTwo : c.participantOne;
 
     return (
-        <div className="min-h-[calc(100vh-72px)] flex bg-white">
+        <div className="min-h-[calc(100vh-72px)] flex bg-white pt-1">
             {/* Sidebar */}
-            <div className={`w-full md:w-80 border-r border-slate-100 flex-shrink-0 ${activeConv ? 'hidden md:block' : ''}`} style={{ background: '#FAFAFA' }}>
-                <div className="p-5 border-b border-slate-100"><h2 className="text-lg font-bold text-slate-900 flex items-center gap-2"><MessageSquare className="w-5 h-5 text-indigo-500" /> Messages</h2></div>
-                <div className="overflow-y-auto h-[calc(100vh-72px-65px)]">
+            <div className={`w-full md:w-96 border-r border-black flex-shrink-0 ${activeConv ? 'hidden md:block' : ''}`} style={{ background: '#FAFAFA' }}>
+                <div className="p-8 border-b border-black"><h2 className="text-xl font-black text-black flex items-center gap-3 uppercase tracking-tighter"><MessageSquare className="w-6 h-6 text-black" /> Messages</h2></div>
+                <div className="overflow-y-auto h-[calc(100vh-72px-85px)]">
                     {conversations.length === 0 ? (
-                        <div className="text-center py-20 px-4"><div className="text-4xl mb-2">💬</div><p className="text-slate-400 text-sm">No conversations yet</p></div>
+                        <div className="text-center py-20 px-4"><div className="text-6xl mb-4">💬</div><p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">No conversations yet</p></div>
                     ) : conversations.map(c => {
                         const other = getOther(c); const active = activeConv?.id === c.id;
                         return (
-                            <button key={c.id} onClick={() => setActiveConv(c)} className={`w-full p-4 flex items-center gap-3 hover:bg-white transition-colors text-left border-b border-slate-50 ${active ? 'bg-white border-l-2 !border-l-indigo-500' : ''}`}>
-                                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold flex-shrink-0">{other?.name?.[0]}</div>
+                            <button key={c.id} onClick={() => setActiveConv(c)} className={`w-full p-6 flex items-center gap-4 hover:bg-white transition-colors text-left border-b border-gray-100 ${active ? 'bg-white border-l-[4px] !border-l-black' : ''}`}>
+                                <div className="w-12 h-12 bg-black flex items-center justify-center text-white font-black flex-shrink-0 text-lg">{other?.name?.[0]}</div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between"><p className={`font-medium text-sm ${active ? 'text-indigo-600' : 'text-slate-900'}`}>{other?.name}</p>
-                                        {c.unreadCount > 0 && <span className="w-5 h-5 bg-indigo-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">{c.unreadCount}</span>}</div>
-                                    <p className="text-slate-400 text-xs line-clamp-1 mt-0.5">{c.messages?.[0]?.content || 'Start chatting...'}</p>
+                                    <div className="flex items-center justify-between"><p className={`font-black text-[13px] uppercase tracking-tighter ${active ? 'text-black' : 'text-gray-900'}`}>{other?.name}</p>
+                                        {c.unreadCount > 0 && <span className="w-6 h-6 bg-black text-white text-[10px] flex items-center justify-center font-black tracking-widest">{c.unreadCount}</span>}</div>
+                                    <p className="text-gray-400 text-[11px] font-bold uppercase tracking-widest line-clamp-1 mt-1.5">{c.messages?.[0]?.content || 'Start chatting...'}</p>
                                 </div>
                             </button>
                         );
@@ -69,33 +69,33 @@ function MessagesContent() {
             <div className="flex-1 flex flex-col">
                 {activeConv ? (
                     <>
-                        <div className="p-4 border-b border-slate-100 flex items-center gap-3">
-                            <button onClick={() => setActiveConv(null)} className="md:hidden p-1 text-slate-400 hover:text-slate-700"><ArrowLeft className="w-5 h-5" /></button>
-                            <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm">{getOther(activeConv)?.name?.[0]}</div>
-                            <div><p className="text-slate-900 font-medium text-sm">{getOther(activeConv)?.name}</p>{activeConv.property && <p className="text-slate-400 text-xs">Re: {activeConv.property.title}</p>}</div>
+                        <div className="p-6 border-b border-black flex items-center gap-4 bg-white">
+                            <button onClick={() => setActiveConv(null)} className="md:hidden p-2 text-black hover:bg-gray-50"><ArrowLeft className="w-5 h-5" /></button>
+                            <div className="w-10 h-10 bg-black flex items-center justify-center text-white font-black text-sm">{getOther(activeConv)?.name?.[0]}</div>
+                            <div><p className="text-black font-black text-[15px] uppercase tracking-tighter">{getOther(activeConv)?.name}</p>{activeConv.property && <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">Re: {activeConv.property.title}</p>}</div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-5 space-y-3" style={{ background: '#FAFAFA' }}>
                             {messages.map(m => {
                                 const mine = m.sender?.id === user?.id || m.senderId === user?.id;
                                 return (
                                     <div key={m.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
-                                        <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${mine ? 'bg-indigo-500 text-white rounded-br-md' : 'bg-white text-slate-700 rounded-bl-md shadow-sm border border-slate-100'}`}>
-                                            <p>{m.content}</p>
-                                            <p className={`text-[11px] mt-1 ${mine ? 'text-indigo-200' : 'text-slate-400'}`}>{new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                        <div className={`max-w-[80%] px-6 py-4 border text-sm ${mine ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-100'}`}>
+                                            <p className="leading-relaxed">{m.content}</p>
+                                            <p className={`text-[10px] font-bold uppercase tracking-widest mt-3 ${mine ? 'text-gray-400' : 'text-gray-400'}`}>{new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                         </div>
                                     </div>
                                 );
                             })}
                             <div ref={bottomRef} />
                         </div>
-                        <form onSubmit={handleSend} className="p-4 border-t border-slate-100 flex gap-3 bg-white">
-                            <input type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Type a message..." className="input !rounded-2xl !bg-slate-50 flex-1" />
-                            <button type="submit" disabled={sending || !newMessage.trim()} className="btn-primary !rounded-2xl !px-4 !py-3">{sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}</button>
+                        <form onSubmit={handleSend} className="p-6 border-t border-black flex gap-4 bg-white">
+                            <input type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Type a message..." className="input !rounded-none !bg-gray-50 !border-gray-200 focus:!border-black flex-1" />
+                            <button type="submit" disabled={sending || !newMessage.trim()} className="btn-primary !rounded-none !px-8 !py-4">{sending ? <Loader2 className="w-6 h-6 animate-spin" /> : <Send className="w-6 h-6" />}</button>
                         </form>
                     </>
                 ) : (
-                    <div className="flex-1 hidden md:flex items-center justify-center" style={{ background: '#FAFAFA' }}>
-                        <div className="text-center"><div className="text-5xl mb-3">💬</div><h3 className="text-lg font-semibold text-slate-900">Select a conversation</h3><p className="text-slate-400 text-sm mt-1">Choose from your existing conversations</p></div>
+                    <div className="flex-1 hidden md:flex items-center justify-center p-12" style={{ background: '#FAFAFA' }}>
+                        <div className="text-center"><div className="text-8xl mb-8">💬</div><h3 className="text-2xl font-black text-black uppercase tracking-tighter">Select a conversation</h3><p className="text-gray-400 text-[11px] font-bold uppercase tracking-widest mt-4">Choose a chat to start transacting</p></div>
                     </div>
                 )}
             </div>
@@ -104,5 +104,5 @@ function MessagesContent() {
 }
 
 export default function MessagesPage() {
-    return <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-7 h-7 text-indigo-500 animate-spin" /></div>}><MessagesContent /></Suspense>;
+    return <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-black uppercase tracking-widest text-gray-400 text-[11px]"><Loader2 className="w-5 h-5 animate-spin mr-3" /> Loading messages...</div>}><MessagesContent /></Suspense>;
 }

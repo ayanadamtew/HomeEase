@@ -33,6 +33,11 @@
   --danger: #EF4444;
   /* Retained only for critical destructive actions */
 
+  /* Typography - Editorial Gallery */
+  --font-headings: var(--font-instrument);
+  --font-accent: var(--font-unbounded);
+  --font-body: var(--font-space-grotesk);
+
   /* Flat geometry - no shadows */
   --radius: 0px;
   --radius-sm: 0px;
@@ -48,9 +53,33 @@
 body {
   background: var(--bg);
   color: var(--text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-body), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-headings), serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.font-headings {
+  font-family: var(--font-headings), serif;
+}
+
+.font-accent {
+  font-family: var(--font-accent), sans-serif;
+  text-transform: uppercase;
+}
+
+.font-body {
+  font-family: var(--font-body), sans-serif;
 }
 
 /* ── Scrollbar ─────────────────────────────── */
@@ -64,12 +93,11 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 3px;
+  background: var(--gray-300);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: var(--gray-400);
 }
 
 /* ── Animations ────────────────────────────── */
@@ -286,9 +314,11 @@ body {
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--black);
 }
 
 .line-clamp-1 {

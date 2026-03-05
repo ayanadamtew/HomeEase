@@ -10,71 +10,44 @@ export default function PropertyCard({ property }) {
 
     return (
         <Link href={`/properties/${property.id}`} className="group block">
-            <div className="card card-interactive rounded-2xl overflow-hidden">
+            <div className="card border border-gray-100 overflow-hidden">
                 {/* Image */}
-                <div className="relative h-56 bg-slate-100 overflow-hidden">
+                <div className="relative h-64 bg-gray-50 overflow-hidden border-b border-gray-100 group">
                     {primaryImage ? (
                         <img
                             src={primaryImage.imageUrl}
                             alt={property.title}
-                            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out"
+                            className="w-full h-full object-cover grayscale transition-transform duration-1000 group-hover:grayscale-0 group-hover:scale-105"
                         />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-50 to-slate-100">
-                            <div className="text-center">
-                                <div className="text-4xl mb-1">🏠</div>
-                                <span className="text-slate-400 text-xs">No photo</span>
-                            </div>
-                        </div>
+                        <div className="w-full h-full flex items-center justify-center bg-gray-50 text-black font-headings italic text-xl">No Image</div>
                     )}
 
                     {/* Price Badge */}
-                    <div className="absolute bottom-3 left-3 px-3 py-1.5 bg-white/95 backdrop-blur-sm rounded-xl shadow-md">
-                        <span className="text-indigo-600 font-bold text-[15px]">ETB {Number(property.pricePerMonth).toLocaleString()}</span>
-                        <span className="text-slate-400 text-xs font-medium">/mo</span>
+                    <div className="absolute top-0 right-0 bg-white text-black px-5 py-3 text-[10px] font-accent tracking-widest border-l border-b border-gray-100 z-10">
+                        ETB {Number(property.pricePerMonth).toLocaleString()}
                     </div>
-
-                    {/* Rating */}
-                    {reviewCount > 0 && (
-                        <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm">
-                            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                            <span className="text-slate-800 text-xs font-semibold">{avgRating.toFixed(1)}</span>
-                        </div>
-                    )}
-
-                    {/* Status */}
-                    {property.status !== 'AVAILABLE' && (
-                        <div className="absolute top-3 left-3 badge bg-red-50 text-red-600 border border-red-100">
-                            {property.status}
-                        </div>
-                    )}
                 </div>
 
                 {/* Content */}
-                <div className="p-4 pb-5">
-                    <h3 className="text-slate-900 font-semibold text-[15px] leading-snug group-hover:text-indigo-600 transition-colors line-clamp-1">
-                        {property.title}
-                    </h3>
+                <div className="p-8">
+                    <h3 className="text-2xl font-headings text-black tracking-tight mb-4 line-clamp-1">{property.title}</h3>
+                    <div className="flex items-center gap-2 text-gray-400 font-body text-[10px] uppercase tracking-widest mb-6"><MapPin className="w-3.5 h-3.5" /> {property.city}</div>
 
-                    <div className="flex items-center gap-1 mt-1.5 text-slate-400 text-sm">
-                        <MapPin className="w-3.5 h-3.5" />
-                        <span className="line-clamp-1">{property.city}, {property.state}</span>
-                    </div>
-
-                    <div className="flex items-center gap-1 mt-3.5 pt-3.5 border-t border-slate-100">
-                        <div className="flex items-center gap-1 text-slate-500 text-[13px]">
-                            <Bed className="w-4 h-4" />
-                            <span>{property.bedrooms} {property.bedrooms === 1 ? 'Bed' : 'Beds'}</span>
+                    <div className="flex items-center gap-1 mt-4 pt-4 border-t border-gray-100">
+                        <div className="flex items-center gap-1 text-gray-500 text-[11px] font-bold uppercase tracking-tighter">
+                            <Bed className="w-3.5 h-3.5" />
+                            <span>{property.bedrooms} Bed</span>
                         </div>
-                        <span className="text-slate-200 mx-1.5">·</span>
-                        <div className="flex items-center gap-1 text-slate-500 text-[13px]">
-                            <Bath className="w-4 h-4" />
-                            <span>{property.bathrooms} {property.bathrooms === 1 ? 'Bath' : 'Baths'}</span>
+                        <span className="text-gray-200 mx-2">·</span>
+                        <div className="flex items-center gap-1 text-gray-500 text-[11px] font-bold uppercase tracking-tighter">
+                            <Bath className="w-3.5 h-3.5" />
+                            <span>{property.bathrooms} Bath</span>
                         </div>
                         {property.area && (
                             <>
-                                <span className="text-slate-200 mx-1.5">·</span>
-                                <span className="text-slate-500 text-[13px]">{property.area} sqft</span>
+                                <span className="text-gray-200 mx-2">·</span>
+                                <span className="text-gray-500 text-[11px] font-bold uppercase tracking-tighter">{property.area} sqft</span>
                             </>
                         )}
                     </div>

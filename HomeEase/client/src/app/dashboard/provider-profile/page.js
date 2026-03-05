@@ -98,27 +98,27 @@ export default function ProviderProfilePage() {
         : SERVICE_SUGGESTIONS;
 
     if (authLoading || loadingProfile) {
-        return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-7 h-7 text-indigo-500 animate-spin" /></div>;
+        return <div className="min-h-screen flex items-center justify-center font-black uppercase tracking-widest text-gray-400 text-[11px]"><Loader2 className="w-5 h-5 animate-spin mr-3" /> Loading profile...</div>;
     }
 
     return (
-        <div className="min-h-screen py-8" style={{ background: '#F8FAFC' }}>
+        <div className="min-h-screen py-16 bg-white">
             <div className="max-w-2xl mx-auto px-5">
-                <button onClick={() => router.back()} className="flex items-center gap-1 text-slate-400 hover:text-slate-700 text-sm font-medium transition-colors mb-6">
+                <button onClick={() => router.back()} className="flex items-center gap-2 text-gray-400 hover:text-black text-[10px] font-black uppercase tracking-widest transition-colors mb-8">
                     <ArrowLeft className="w-4 h-4" /> Back
                 </button>
 
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Service Provider Profile</h1>
-                    <p className="text-slate-500 text-sm mt-1">List the service you offer so clients can find and book you</p>
+                <div className="mb-10">
+                    <h1 className="text-3xl font-black text-black tracking-tighter uppercase leading-none">Service Profile</h1>
+                    <p className="text-gray-400 text-[11px] font-bold uppercase tracking-widest mt-4">List the service you offer so clients can find and book you</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
 
                     {/* ── What service do you offer? ── */}
-                    <div className="card p-6 !rounded-3xl">
-                        <h3 className="font-semibold text-slate-900 mb-1">What service do you offer? *</h3>
-                        <p className="text-slate-400 text-sm mb-4">Type anything — be as specific as you like</p>
+                    <div className="bg-white border border-black p-8">
+                        <h3 className="font-black text-black uppercase tracking-widest text-sm mb-2">What service do you offer? *</h3>
+                        <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-6 leading-relaxed">Type anything — be as specific as you like</p>
 
                         <div className="relative">
                             <input
@@ -128,19 +128,19 @@ export default function ProviderProfilePage() {
                                 onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                                 required
                                 placeholder="e.g. House Cleaning, Personal Chef, Plumbing Repairs..."
-                                className="input !pr-10"
+                                className="input !bg-gray-50 !border-gray-200 focus:!border-black !pr-10"
                             />
                             {form.serviceType && (
-                                <button type="button" onClick={() => setForm({ ...form, serviceType: '' })} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500">
+                                <button type="button" onClick={() => setForm({ ...form, serviceType: '' })} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black">
                                     <X className="w-4 h-4" />
                                 </button>
                             )}
 
                             {showSuggestions && filteredSuggestions.length > 0 && (
-                                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-100 rounded-2xl shadow-lg z-10 max-h-52 overflow-y-auto">
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-black shadow-none z-10 max-h-60 overflow-y-auto">
                                     {filteredSuggestions.slice(0, 10).map(s => (
                                         <button type="button" key={s} onMouseDown={() => pickSuggestion(s)}
-                                            className="w-full text-left px-4 py-2.5 text-sm text-slate-600 hover:bg-indigo-50 hover:text-indigo-700 transition-colors first:rounded-t-2xl last:rounded-b-2xl">
+                                            className="w-full text-left px-5 py-3 text-[11px] font-black uppercase tracking-widest text-black hover:bg-black hover:text-white transition-all border-b border-gray-100 last:border-0">
                                             {s}
                                         </button>
                                     ))}
@@ -150,12 +150,12 @@ export default function ProviderProfilePage() {
 
                         {/* Popular suggestions (shown only if field is empty) */}
                         {!form.serviceType && (
-                            <div className="mt-4">
-                                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Popular services</p>
+                            <div className="mt-8">
+                                <p className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-4">Popular services</p>
                                 <div className="flex flex-wrap gap-2">
                                     {['House Cleaning', 'Cooking', 'Childcare', 'Plumbing', 'Electrical Work', 'Gardening', 'Pet Sitting', 'Tutoring'].map(s => (
                                         <button type="button" key={s} onClick={() => setForm({ ...form, serviceType: s })}
-                                            className="px-3.5 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-sm text-slate-600 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 transition-all">
+                                            className="px-4 py-2 border border-gray-100 text-[10px] font-black uppercase tracking-widest text-black hover:border-black transition-all">
                                             {s}
                                         </button>
                                     ))}
@@ -165,74 +165,74 @@ export default function ProviderProfilePage() {
                     </div>
 
                     {/* ── About You ── */}
-                    <div className="card p-6 !rounded-3xl space-y-4">
-                        <h3 className="font-semibold text-slate-900">About You</h3>
+                    <div className="bg-white border border-black p-8 space-y-6">
+                        <h3 className="font-black text-black uppercase tracking-widest text-sm mb-4">About You</h3>
                         <div>
-                            <label className="text-sm font-medium text-slate-700 block mb-1.5">Professional Headline *</label>
+                            <label className="text-[11px] font-black text-black uppercase tracking-widest block mb-3">Professional Headline *</label>
                             <input value={form.headline} onChange={update('headline')} required
                                 placeholder={`e.g. Experienced ${form.serviceType || 'service provider'} with 5+ years`}
-                                className="input" />
+                                className="input !bg-gray-50 !border-gray-200 focus:!border-black" />
                         </div>
                         <div>
-                            <label className="text-sm font-medium text-slate-700 block mb-1.5">Bio</label>
-                            <textarea value={form.bio} onChange={update('bio')} rows={4}
+                            <label className="text-[11px] font-black text-black uppercase tracking-widest block mb-3">Bio</label>
+                            <textarea value={form.bio} onChange={update('bio')} rows={5}
                                 placeholder="Describe your experience, skills, and what clients can expect..."
-                                className="input resize-none" />
+                                className="input !bg-gray-50 !border-gray-200 focus:!border-black resize-none" />
                         </div>
                     </div>
 
                     {/* ── Rates & Experience ── */}
-                    <div className="card p-6 !rounded-3xl">
-                        <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                            <DollarSign className="w-5 h-5 text-indigo-500" /> Rates & Experience
+                    <div className="bg-white border border-black p-8">
+                        <h3 className="font-black text-black uppercase tracking-widest text-sm mb-8 flex items-center gap-3">
+                            <DollarSign className="w-5 h-5 text-black" /> Rates & Experience
                         </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                             <div>
-                                <label className="text-sm font-medium text-slate-700 block mb-1.5">Hourly Rate (ETB) *</label>
-                                <input type="number" value={form.hourlyRate} onChange={update('hourlyRate')} required min="1" placeholder="25" className="input" />
+                                <label className="text-[11px] font-black text-black uppercase tracking-widest block mb-3">Hourly Rate *</label>
+                                <input type="number" value={form.hourlyRate} onChange={update('hourlyRate')} required min="1" placeholder="25" className="input !bg-gray-50 !border-gray-200 focus:!border-black" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-slate-700 block mb-1.5">Daily Rate (ETB)</label>
-                                <input type="number" value={form.dailyRate} onChange={update('dailyRate')} min="1" placeholder="Optional" className="input" />
+                                <label className="text-[11px] font-black text-black uppercase tracking-widest block mb-3">Daily Rate</label>
+                                <input type="number" value={form.dailyRate} onChange={update('dailyRate')} min="1" placeholder="Optional" className="input !bg-gray-50 !border-gray-200 focus:!border-black" />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-slate-700 block mb-1.5">Years of Experience</label>
-                                <input type="number" value={form.yearsExperience} onChange={update('yearsExperience')} min="0" className="input" />
+                                <label className="text-[11px] font-black text-black uppercase tracking-widest block mb-3">Years Exp.</label>
+                                <input type="number" value={form.yearsExperience} onChange={update('yearsExperience')} min="0" className="input !bg-gray-50 !border-gray-200 focus:!border-black" />
                             </div>
                         </div>
                     </div>
 
                     {/* ── Location & Availability ── */}
-                    <div className="card p-6 !rounded-3xl space-y-4">
-                        <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-                            <MapPin className="w-5 h-5 text-indigo-500" /> Location & Availability
+                    <div className="bg-white border border-black p-8 space-y-6">
+                        <h3 className="font-black text-black uppercase tracking-widest text-sm mb-4 flex items-center gap-3">
+                            <MapPin className="w-5 h-5 text-black" /> Location & Availability
                         </h3>
                         <div>
-                            <label className="text-sm font-medium text-slate-700 block mb-1.5">Service Area *</label>
+                            <label className="text-[11px] font-black text-black uppercase tracking-widest block mb-3">Service Area *</label>
                             <input value={form.serviceArea} onChange={update('serviceArea')} required
-                                placeholder="e.g. Bole, Addis Ababa — or — Kazanchis" className="input" />
+                                placeholder="e.g. Bole, Addis Ababa — or — Kazanchis" className="input !bg-gray-50 !border-gray-200 focus:!border-black" />
                         </div>
                         <div>
-                            <label className="text-sm font-medium text-slate-700 block mb-1.5">Availability</label>
+                            <label className="text-[11px] font-black text-black uppercase tracking-widest block mb-3">Availability</label>
                             <input value={form.availability} onChange={update('availability')}
-                                placeholder="e.g. Mon–Fri 9am–6pm, Weekends on request" className="input" />
+                                placeholder="e.g. Mon–Fri 9am–6pm, Weekends on request" className="input !bg-gray-50 !border-gray-200 focus:!border-black" />
                         </div>
                     </div>
 
                     {/* ── Active toggle ── */}
-                    <div className="card p-5 !rounded-2xl flex items-center justify-between">
+                    <div className="bg-black text-white p-8 flex items-center justify-between border border-black">
                         <div>
-                            <p className="font-medium text-slate-900 text-sm">Available for Bookings</p>
-                            <p className="text-slate-400 text-xs mt-0.5">Toggle off to pause new booking requests</p>
+                            <p className="font-black uppercase tracking-widest text-[11px]">Available for Bookings</p>
+                            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mt-2">Toggle off to pause new booking requests</p>
                         </div>
                         <button type="button" onClick={() => setForm({ ...form, isActive: !form.isActive })}
-                            className={`relative w-12 h-6 rounded-full transition-colors ${form.isActive ? 'bg-indigo-500' : 'bg-slate-200'}`}>
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.isActive ? 'translate-x-7' : 'translate-x-1'}`} />
+                            className={`relative w-14 h-7 border border-white transition-colors ${form.isActive ? 'bg-white' : 'bg-black'}`}>
+                            <div className={`absolute top-1 w-4 h-4 transition-transform ${form.isActive ? 'bg-black translate-x-8' : 'bg-white translate-x-1'}`} />
                         </button>
                     </div>
 
                     <button type="submit" disabled={submitting || !form.serviceType.trim() || !form.headline.trim() || !form.hourlyRate || !form.serviceArea.trim()}
-                        className="btn-primary w-full !rounded-2xl !py-4">
+                        className="btn-primary w-full !py-4 !text-[12px] !uppercase !tracking-[0.2em]">
                         {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                         {submitting ? 'Saving...' : 'Save Profile & Go Live'}
                     </button>
