@@ -49,6 +49,7 @@ export const propertiesAPI = {
     delete: (id) => api.delete(`/properties/${id}`),
     getMyListings: () => api.get('/properties/user/my-listings'),
     addImages: (id, images) => api.post(`/properties/${id}/images`, { images }),
+    updateStatus: (id, status) => api.put(`/properties/${id}`, { status }),
 };
 
 // ─── Services API ────────────────────────────────────────────────
@@ -56,6 +57,8 @@ export const servicesAPI = {
     getCategories: () => api.get('/services/categories'),
     getProviders: (params) => api.get('/services/providers', { params }),
     getProviderById: (id) => api.get(`/services/providers/${id}`),
+    getMyProfile: () => api.get('/services/profile/me'),
+    createOrUpdateProfile: (data) => api.post('/services/profile', data),
     createProfile: (data) => api.post('/services/profile', data),
     updateProfile: (data) => api.put('/services/profile', data),
     toggleActive: () => api.put('/services/profile/toggle'),

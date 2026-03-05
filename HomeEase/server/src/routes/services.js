@@ -21,6 +21,7 @@ router.get('/providers', serviceController.getProviders);
 router.get('/providers/:id', serviceController.getProviderById);
 
 // ─── Protected Routes ────────────────────────────────────────────
+router.get('/profile/me', authenticate, serviceController.getMyProfile);
 router.post('/profile', authenticate, profileValidation, validate, serviceController.createOrUpdateProfile);
 router.put('/profile', authenticate, serviceController.createOrUpdateProfile);
 router.put('/profile/toggle', authenticate, serviceController.toggleActive);

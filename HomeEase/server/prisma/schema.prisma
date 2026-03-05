@@ -94,22 +94,23 @@ model ServiceCategory {
 }
 
 model ServiceProfile {
-  id              String          @id @default(uuid())
-  userId          String          @unique
-  categoryId      String
+  id              String           @id @default(uuid())
+  userId          String           @unique
+  categoryId      String?
+  serviceType     String           @default("General Service")
   headline        String
   bio             String
-  hourlyRate      Decimal         @db.Decimal(8, 2)
-  dailyRate       Decimal?        @db.Decimal(8, 2)
-  availability    Json            @default("{}")
-  yearsExperience Int             @default(0)
+  hourlyRate      Decimal          @db.Decimal(8, 2)
+  dailyRate       Decimal?         @db.Decimal(8, 2)
+  availability    Json             @default("{}")
+  yearsExperience Int              @default(0)
   serviceArea     String
-  isActive        Boolean         @default(true)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
-  user            User            @relation(fields: [userId], references: [id])
-  category        ServiceCategory @relation(fields: [categoryId], references: [id])
+  user            User             @relation(fields: [userId], references: [id])
+  category        ServiceCategory? @relation(fields: [categoryId], references: [id])
   bookings        Booking[]
   reviews         Review[]
 }

@@ -162,6 +162,28 @@ const getProviderById = async (req, res, next) => {
 };
 
 /**
+ * GET /api/services/profile/me
+ * Get the current user's own service profile.
+ */
+const getMyProfile = async (req, res, next) => {
+    try {
+        const profile = await prisma.serviceProfile.findUnique({
+            where: { userId: req.user.id },
+            include: {
+                category: true,
+                _count: { select: { reviews: true, bookings: true } },
+            },
+        });
+        if (!profile) {
+            return res.status(404).json({ message: 'No profile found' });
+        }
+        res.json({ profile });
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
  * GET /api/services/categories
  * Get all service categories.
  */
@@ -203,6 +225,7 @@ const toggleActive = async (req, res, next) => {
 
 module.exports = {
     createOrUpdateProfile,
+    getMyProfile,
     getProviders,
     getProviderById,
     getCategories,
