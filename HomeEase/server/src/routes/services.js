@@ -8,7 +8,7 @@ const router = express.Router();
 
 // ─── Validation ──────────────────────────────────────────────────
 const profileValidation = [
-    body('categoryId').notEmpty().withMessage('Category is required'),
+    body('serviceType').trim().notEmpty().withMessage('Service type is required'),
     body('headline').trim().notEmpty().withMessage('Headline is required'),
     body('bio').trim().notEmpty().withMessage('Bio is required'),
     body('hourlyRate').isFloat({ min: 0 }).withMessage('Hourly rate must be a positive number'),

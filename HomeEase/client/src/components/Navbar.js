@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useState } from 'react';
-import { Home, Search, Menu, X, User, LogOut, Building2, Wrench, MessageSquare, ChevronDown } from 'lucide-react';
+import { Home, Menu, X, LogOut, Building2, Wrench, MessageSquare, LayoutDashboard } from 'lucide-react';
 
 export default function Navbar() {
     const { user, logout, loading } = useAuth();
@@ -28,6 +28,7 @@ export default function Navbar() {
                         <NavLink href="/properties" icon={<Building2 className="w-4 h-4" />}>Properties</NavLink>
                         <NavLink href="/services" icon={<Wrench className="w-4 h-4" />}>Services</NavLink>
                         {user && <NavLink href="/messages" icon={<MessageSquare className="w-4 h-4" />}>Messages</NavLink>}
+                        {user && <NavLink href="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />}>Dashboard</NavLink>}
                     </div>
 
                     {/* Desktop Auth */}
@@ -36,12 +37,9 @@ export default function Navbar() {
                             <div className="w-8 h-8 rounded-full bg-slate-100 animate-pulse" />
                         ) : user ? (
                             <div className="flex items-center gap-2">
-                                <Link href="/dashboard" className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors text-slate-700">
-                                    <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 text-sm font-semibold">
-                                        {user.name?.[0]}
-                                    </div>
-                                    <span className="text-sm font-medium">{user.name?.split(' ')[0]}</span>
-                                </Link>
+                                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm font-bold">
+                                    {user.name?.[0]}
+                                </div>
                                 <button onClick={logout} className="p-2 rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors" title="Logout">
                                     <LogOut className="w-4 h-4" />
                                 </button>

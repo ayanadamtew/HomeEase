@@ -349,7 +349,7 @@ function BookingRow({ booking, user, onUpdate }) {
                     <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm">{name?.[0]}</div>
                     <div>
                         <p className="text-slate-900 font-medium text-sm">{name}</p>
-                        <p className="text-slate-400 text-xs">{booking.serviceProfile?.category?.icon} {booking.serviceProfile?.category?.name} · {new Date(booking.startTime).toLocaleDateString()}</p>
+                        <p className="text-slate-400 text-xs">{booking.serviceProfile?.category?.icon} {booking.serviceProfile?.serviceType || booking.serviceProfile?.category?.name} · {new Date(booking.startTime).toLocaleDateString()}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">

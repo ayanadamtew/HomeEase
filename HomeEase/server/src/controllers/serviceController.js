@@ -6,7 +6,7 @@ const prisma = require('../config/db');
  */
 const createOrUpdateProfile = async (req, res, next) => {
     try {
-        const { categoryId, headline, bio, hourlyRate, dailyRate, availability, yearsExperience, serviceArea } = req.body;
+        const { categoryId, serviceType, headline, bio, hourlyRate, dailyRate, availability, yearsExperience, serviceArea, isActive } = req.body;
 
         const existing = await prisma.serviceProfile.findUnique({ where: { userId: req.user.id } });
 
@@ -15,7 +15,8 @@ const createOrUpdateProfile = async (req, res, next) => {
             profile = await prisma.serviceProfile.update({
                 where: { userId: req.user.id },
                 data: {
-                    ...(categoryId && { categoryId }),
+                    ...(serviceType && { serviceType }),
+                    ...(categoryId !== undefined && { categoryId: categoryId || null }),
                     ...(headline && { headline }),
                     ...(bio && { bio }),
                     ...(hourlyRate !== undefined && { hourlyRate }),
@@ -23,6 +24,7 @@ const createOrUpdateProfile = async (req, res, next) => {
                     ...(availability && { availability }),
                     ...(yearsExperience !== undefined && { yearsExperience: parseInt(yearsExperience) }),
                     ...(serviceArea && { serviceArea }),
+                    ...(isActive !== undefined && { isActive: Boolean(isActive) }),
                 },
                 include: { category: true, user: { select: { id: true, name: true, email: true, avatarUrl: true } } },
             });
@@ -30,7 +32,8 @@ const createOrUpdateProfile = async (req, res, next) => {
             profile = await prisma.serviceProfile.create({
                 data: {
                     userId: req.user.id,
-                    categoryId,
+                    serviceType: serviceType || 'General Service',
+                    categoryId: categoryId || null,
                     headline,
                     bio,
                     hourlyRate,
@@ -38,6 +41,7 @@ const createOrUpdateProfile = async (req, res, next) => {
                     availability: availability || {},
                     yearsExperience: yearsExperience ? parseInt(yearsExperience) : 0,
                     serviceArea,
+                    isActive: isActive !== undefined ? Boolean(isActive) : true,
                 },
                 include: { category: true, user: { select: { id: true, name: true, email: true, avatarUrl: true } } },
             });
@@ -72,6 +76,7 @@ const getProviders = async (req, res, next) => {
 
         if (search) {
             where.OR = [
+                { serviceType: { contains: search, mode: 'insensitive' } },
                 { headline: { contains: search, mode: 'insensitive' } },
                 { bio: { contains: search, mode: 'insensitive' } },
                 { user: { name: { contains: search, mode: 'insensitive' } } },
@@ -79,7 +84,10 @@ const getProviders = async (req, res, next) => {
         }
 
         if (category) {
-            where.category = { name: { equals: category, mode: 'insensitive' } };
+            where.OR = [
+                { serviceType: { contains: category, mode: 'insensitive' } },
+                { category: { name: { contains: category, mode: 'insensitive' } } },
+            ];
         }
 
         if (minRate) where.hourlyRate = { ...where.hourlyRate, gte: parseFloat(minRate) };

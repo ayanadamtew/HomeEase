@@ -58,7 +58,7 @@ export default function ServiceProviderDetailPage() {
                                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{provider.user?.name}</h1>
                                 <p className="text-indigo-600 font-medium mt-1">{provider.headline}</p>
                                 <div className="flex flex-wrap items-center gap-2.5 mt-3">
-                                    <span className="badge bg-indigo-50 text-indigo-600 border border-indigo-100">{provider.category?.icon} {provider.category?.name}</span>
+                                    <span className="badge bg-indigo-50 text-indigo-600 border border-indigo-100">{provider.category?.icon} {provider.serviceType || provider.category?.name}</span>
                                     <span className="flex items-center gap-1 text-slate-400 text-sm"><MapPin className="w-3.5 h-3.5" /> {provider.serviceArea}</span>
                                     <span className="flex items-center gap-1 text-slate-400 text-sm"><Briefcase className="w-3.5 h-3.5" /> {provider.yearsExperience} yrs</span>
                                     {provider.avgRating > 0 && <span className="flex items-center gap-1 text-slate-400 text-sm"><Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" /> {provider.avgRating.toFixed(1)}</span>}

@@ -90,7 +90,7 @@ function ProviderCard({ provider }) {
                         <h3 className="text-slate-900 font-semibold group-hover:text-indigo-600 transition-colors">{provider.user?.name}</h3>
                         <p className="text-slate-400 text-sm line-clamp-1">{provider.headline}</p>
                         <span className="inline-flex items-center gap-1 mt-1.5 px-2.5 py-0.5 bg-slate-50 border border-slate-100 rounded-full text-xs text-slate-500 font-medium">
-                            {provider.category?.icon} {provider.category?.name}
+                            {provider.category?.icon} {provider.serviceType || provider.category?.name}
                         </span>
                     </div>
                 </div>
