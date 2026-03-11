@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { propertiesAPI } from '@/lib/api';
 import PropertyCard from '@/components/PropertyCard';
 import { Search, SlidersHorizontal, X, Loader2, ArrowUpDown } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function PropertiesPage() {
     const [properties, setProperties] = useState([]);
@@ -30,7 +31,7 @@ export default function PropertiesPage() {
             const res = await propertiesAPI.getAll(params);
             setProperties(res.data.properties);
             setPagination(res.data.pagination);
-        } catch (err) { console.error(err); }
+        } catch (err) { toast.error(err.response?.data?.message || 'Failed to load properties. Please try again later.'); }
         finally { setLoading(false); }
     };
 

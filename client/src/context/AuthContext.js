@@ -32,8 +32,8 @@ export function AuthProvider({ children }) {
         return res.data;
     };
 
-    const register = async (data) => {
-        const res = await authAPI.register(data);
+    const register = async (name, email, password, role) => {
+        const res = await authAPI.register({ name, email, password, role });
         Cookies.set('token', res.data.token, { expires: 7 });
         setUser(res.data.user);
         return res.data;

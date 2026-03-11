@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { servicesAPI } from '@/lib/api';
 import Link from 'next/link';
 import { Search, Star, MapPin, Loader2, ArrowRight } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function ServicesPage() {
     const [categories, setCategories] = useState([]);
@@ -24,7 +25,7 @@ export default function ServicesPage() {
             const res = await servicesAPI.getProviders(params);
             setProviders(res.data.providers);
             setPagination(res.data.pagination);
-        } catch (err) { console.error(err); }
+        } catch (err) { toast.error(err.response?.data?.message || 'Failed to load service providers. Please try again later.'); }
         finally { setLoading(false); }
     };
 
