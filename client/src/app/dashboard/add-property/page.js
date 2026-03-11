@@ -3,23 +3,70 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { propertiesAPI } from '@/lib/api';
+import { propertiesAPI, uploadAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Loader2, Plus, Building2, MapPin, Grid, Info } from 'lucide-react';
+import { ArrowLeft, Loader2, Plus, Building2, MapPin, Grid, Info, Upload, X as CloseIcon, Image as ImageIcon } from 'lucide-react';
 
 export default function AddPropertyPage() {
     const { user, loading: authLoading } = useAuth();
     const router = useRouter();
     const [submitting, setSubmitting] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [images, setImages] = useState([]); // [{ url, file, preview }]
     const [form, setForm] = useState({ title: '', description: '', pricePerMonth: '', location: '', city: '', state: '', bedrooms: '1', bathrooms: '1', area: '', amenities: [] });
     const update = (f) => (e) => setForm({ ...form, [f]: e.target.value });
     const toggleAmenity = (a) => setForm({ ...form, amenities: form.amenities.includes(a) ? form.amenities.filter(x => x !== a) : [...form.amenities, a] });
 
+    const handleImageChange = (e) => {
+        const files = Array.from(e.target.files);
+        const newImages = files.map(file => ({
+            file,
+            preview: URL.createObjectURL(file),
+            url: null
+        }));
+        setImages([...images, ...newImages]);
+    };
+
+    const removeImage = (index) => {
+        const newImages = [...images];
+        URL.revokeObjectURL(newImages[index].preview);
+        newImages.splice(index, 1);
+        setImages(newImages);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try { setSubmitting(true); await propertiesAPI.create({ ...form, pricePerMonth: parseFloat(form.pricePerMonth), bedrooms: parseInt(form.bedrooms), bathrooms: parseInt(form.bathrooms), area: form.area ? parseInt(form.area) : undefined }); toast.success('Property listed successfully!'); router.push('/dashboard'); }
-        catch (err) { toast.error(err.response?.data?.message || 'Failed to list property'); }
-        finally { setSubmitting(false); }
+        try {
+            setSubmitting(true);
+
+            // 1. Upload images first
+            const uploadedUrls = [];
+            for (let i = 0; i < images.length; i++) {
+                if (images[i].url) {
+                    uploadedUrls.push({ url: images[i].url });
+                    continue;
+                }
+                const res = await uploadAPI.upload(images[i].file);
+                uploadedUrls.push({ url: res.data.url });
+            }
+
+            // 2. Create property
+            await propertiesAPI.create({
+                ...form,
+                pricePerMonth: parseFloat(form.pricePerMonth),
+                bedrooms: parseInt(form.bedrooms),
+                bathrooms: parseInt(form.bathrooms),
+                area: form.area ? parseInt(form.area) : undefined,
+                images: uploadedUrls
+            });
+
+            toast.success('Property listed successfully!');
+            router.push('/dashboard');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to list property');
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     if (authLoading) return <div className="min-h-screen flex items-center justify-center text-gray-400"><Loader2 className="w-8 h-8 animate-spin text-indigo-500 mr-3" /> <span className="font-semibold text-lg">Verifying access...</span></div>;
@@ -82,6 +129,32 @@ export default function AddPropertyPage() {
                                     <button type="button" key={a} onClick={() => toggleAmenity(a)} className={`px-4 py-2 text-sm font-semibold rounded-xl border transition-all ${form.amenities.includes(a) ? 'bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm' : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-200 hover:bg-gray-50'}`}>{a}</button>
                                 ))}
                             </div>
+                        </div>
+                    </SectionBox>
+
+                    {/* Image Upload */}
+                    <SectionBox icon={<ImageIcon className="w-5 h-5" />} title="Property Images">
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                {images.map((img, idx) => (
+                                    <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-gray-100 group">
+                                        <img src={img.preview} alt="Preview" className="w-full h-full object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImage(idx)}
+                                            className="absolute top-2 right-2 p-1 bg-white/90 backdrop-blur-sm rounded-lg text-red-500 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                                        >
+                                            <CloseIcon className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                ))}
+                                <label className="flex flex-col items-center justify-center aspect-square rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-indigo-300 transition-all cursor-pointer group">
+                                    <Upload className="w-6 h-6 text-gray-400 group-hover:text-indigo-500 mb-2" />
+                                    <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider group-hover:text-indigo-600">Add Image</span>
+                                    <input type="file" multiple accept="image/*" onChange={handleImageChange} className="hidden" />
+                                </label>
+                            </div>
+                            <p className="text-[11px] text-gray-400 font-medium italic">Tip: Upload high-quality photos to attract more tenants. The first image will be the primary photo.</p>
                         </div>
                     </SectionBox>
 

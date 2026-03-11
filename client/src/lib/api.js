@@ -87,4 +87,15 @@ export const messagesAPI = {
     getMessages: (conversationId, params) => api.get(`/messages/${conversationId}`, { params }),
 };
 
+// ─── Upload API ──────────────────────────────────────────────────
+export const uploadAPI = {
+    upload: (file) => {
+        const formData = new FormData();
+        formData.append('image', file);
+        return api.post('/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+    },
+};
+
 export default api;

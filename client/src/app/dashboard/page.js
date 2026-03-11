@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { propertiesAPI, servicesAPI, bookingsAPI, messagesAPI, usersAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
-import { Building2, Wrench, MessageSquare, Calendar, Loader2, Plus, Clock, MapPin, CheckCircle2, ChevronRight, LayoutDashboard, Settings, ListPlus } from 'lucide-react';
+import { Building2, Wrench, MessageSquare, Calendar, Loader2, Plus, Clock, MapPin, CheckCircle2, ChevronRight, LayoutDashboard, Settings, ListPlus, Star } from 'lucide-react';
 
 export default function DashboardPage() {
     const { user, loading: authLoading } = useAuth();

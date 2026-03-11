@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { servicesAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Loader2, DollarSign, MapPin, Save, ListPlus, X, Briefcase, User, Info, Calendar } from 'lucide-react';
+import { ArrowLeft, Loader2, DollarSign, MapPin, Save, ListPlus, X, Briefcase, User, Info, Calendar, CheckCircle2 } from 'lucide-react';
 
 const SERVICE_SUGGESTIONS = [
     'House Cleaning', 'Deep Cleaning', 'Office Cleaning', 'Window Cleaning',
@@ -62,7 +62,10 @@ export default function ProviderProfilePage() {
             });
             toast.success('Profile saved! You are now live.');
             router.push('/dashboard');
-        } catch (err) { toast.error(err.response?.data?.message || 'Failed to save profile'); }
+        } catch (err) {
+            const errorMsg = err.response?.data?.message || err.response?.data?.errors?.[0]?.msg || 'Failed to save profile';
+            toast.error(errorMsg);
+        }
         finally { setSubmitting(false); }
     };
 
@@ -145,7 +148,7 @@ export default function ProviderProfilePage() {
                             </div>
                             <div>
                                 <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2 block">Bio</label>
-                                <textarea value={form.bio} onChange={update('bio')} rows={4} placeholder="Describe your experience, skills, and what clients can expect..." className="input shadow-sm resize-none" />
+                                <textarea value={form.bio} onChange={update('bio')} rows={4} required placeholder="Describe your experience, skills, and what clients can expect..." className="input shadow-sm resize-none" />
                             </div>
                         </div>
                     </SectionBox>
