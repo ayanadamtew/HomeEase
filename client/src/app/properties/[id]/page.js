@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { propertiesAPI, messagesAPI } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
-import { MapPin, Bed, Bath, Maximize2, Star, ArrowLeft, MessageSquare, ChevronLeft, ChevronRight, Loader2, Mail, Wifi, Car, Dumbbell, TreeDeciduous, Phone } from 'lucide-react';
+import { MapPin, Bed, Bath, Maximize2, Star, ArrowLeft, MessageSquare, ChevronLeft, ChevronRight, Loader2, Mail, Wifi, Car, Dumbbell, TreeDeciduous, Phone, CheckCircle2 } from 'lucide-react';
 
 const amenityIcons = { WiFi: <Wifi className="w-4 h-4" />, Parking: <Car className="w-4 h-4" />, Gym: <Dumbbell className="w-4 h-4" />, Pool: <TreeDeciduous className="w-4 h-4" /> };
 
@@ -23,7 +23,7 @@ export default function PropertyDetailPage() {
     useEffect(() => {
         propertiesAPI.getById(params.id)
             .then(res => setProperty(res.data.property))
-            .catch(() => { toast.error('Not found'); router.push('/properties'); })
+            .catch(() => { toast.error('Property not found'); router.push('/properties'); })
             .finally(() => setLoading(false));
     }, [params.id]);
 
@@ -34,101 +34,113 @@ export default function PropertyDetailPage() {
             setSending(true);
             const convRes = await messagesAPI.startConversation({ recipientId: property.landlord.id, propertyId: property.id });
             await messagesAPI.sendMessage(convRes.data.conversation.id, inquiryMsg || `Hi, I'm interested in "${property.title}"`);
-            toast.success('Message sent!');
+            toast.success('Message sent to landlord!');
             setShowInquiry(false); setInquiryMsg('');
-        } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+        } catch (err) { toast.error(err.response?.data?.message || 'Failed to send message'); }
         finally { setSending(false); }
     };
 
-    if (loading) return <div className="min-h-screen flex items-center justify-center font-black uppercase tracking-widest text-gray-400 text-[11px]"><Loader2 className="w-5 h-5 animate-spin mr-3" /> Loading property details...</div>;
+    if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500"><Loader2 className="w-8 h-8 animate-spin text-indigo-500 mr-4" /> <span className="font-medium text-lg">Loading property details...</span></div>;
     if (!property) return null;
 
     const images = property.images || [];
 
     return (
-        <div className="min-h-screen bg-white">
-            <div className="max-w-7xl mx-auto px-5 sm:px-8 pt-10 pb-20">
-                <button onClick={() => router.back()} className="flex items-center gap-2 text-gray-400 hover:text-black text-[10px] font-black uppercase tracking-widest transition-colors mb-10">
-                    <ArrowLeft className="w-4 h-4" /> Back
-                </button>
+        <div className="min-h-screen bg-gray-50 pb-24">
+            {/* Gallery Full Width Header */}
+            <div className="bg-gray-900 w-full relative">
+                <div className="max-w-[1600px] mx-auto relative group h-[50vh] sm:h-[65vh]">
+                    <button onClick={() => router.back()} className="absolute top-6 left-6 z-20 flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm">
+                        <ArrowLeft className="w-4 h-4" /> Back to listings
+                    </button>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                    <div className="lg:col-span-2 space-y-8">
-                        {/* Gallery */}
-                        <div className="bg-white border border-black overflow-hidden">
-                            <div className="relative aspect-[16/10] bg-gray-50">
-                                {images.length > 0 ? (
-                                    <>
-                                        <img src={images[activeImg]?.imageUrl} alt={property.title} className="w-full h-full object-cover" />
-                                        {images.length > 1 && (
-                                            <>
-                                                <button onClick={() => setActiveImg(i => i === 0 ? images.length - 1 : i - 1)} className="absolute left-3 top-1/2 -translate-y-1/2 p-3 bg-white/90 backdrop-blur-sm border border-black shadow-none text-black hover:bg-white transition"><ChevronLeft className="w-5 h-5" /></button>
-                                                <button onClick={() => setActiveImg(i => i === images.length - 1 ? 0 : i + 1)} className="absolute right-3 top-1/2 -translate-y-1/2 p-3 bg-white/90 backdrop-blur-sm border border-black shadow-none text-black hover:bg-white transition"><ChevronRight className="w-5 h-5" /></button>
-                                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                                                    {images.map((_, idx) => <button key={idx} onClick={() => setActiveImg(idx)} className={`h-1 transition-all ${idx === activeImg ? 'bg-white w-8' : 'bg-white/50 w-2'}`} />)}
-                                                </div>
-                                            </>
-                                        )}
-                                    </>
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-gray-50">
-                                        <div className="text-center"><div className="text-6xl mb-2">🏠</div><p className="text-gray-400 text-sm font-bold uppercase tracking-widest">No images</p></div>
+                    {images.length > 0 ? (
+                        <>
+                            <img src={images[activeImg]?.imageUrl} alt={property.title} className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent pointer-events-none" />
+                            {images.length > 1 && (
+                                <>
+                                    <button onClick={() => setActiveImg(i => i === 0 ? images.length - 1 : i - 1)} className="absolute left-6 top-1/2 -translate-y-1/2 p-3 bg-white/20 backdrop-blur-md hover:bg-white/40 text-white rounded-full transition opacity-0 group-hover:opacity-100"><ChevronLeft className="w-6 h-6" /></button>
+                                    <button onClick={() => setActiveImg(i => i === images.length - 1 ? 0 : i + 1)} className="absolute right-6 top-1/2 -translate-y-1/2 p-3 bg-white/20 backdrop-blur-md hover:bg-white/40 text-white rounded-full transition opacity-0 group-hover:opacity-100"><ChevronRight className="w-6 h-6" /></button>
+                                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+                                        {images.map((_, idx) => <button key={idx} onClick={() => setActiveImg(idx)} className={`h-2 rounded-full transition-all ${idx === activeImg ? 'bg-white w-8 shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'bg-white/50 w-2 hover:bg-white/80'}`} />)}
                                     </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Details */}
-                        <div className="bg-white border border-black p-10 sm:p-14">
-                            <div className="flex items-start justify-between flex-wrap gap-4">
-                                <div>
-                                    <h1 className="text-3xl sm:text-64px font-headings text-black tracking-tight uppercase leading-none">{property.title}</h1>
-                                    <div className="flex items-center gap-2 mt-6 text-black font-headings uppercase text-[10px] tracking-widest"><MapPin className="w-4 h-4 text-black" />{property.location}, {property.city}, {property.state}</div>
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-5xl font-headings text-black tracking-tight uppercase leading-none">ETB {Number(property.pricePerMonth).toLocaleString()}</div>
-                                    <div className="text-gray-400 text-[11px] font-headings uppercase tracking-[0.3em] mt-3">per month</div>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-10">
-                                <Stat icon={<Bed className="w-5 h-5 text-black" />} label="Bedrooms" value={property.bedrooms} />
-                                <Stat icon={<Bath className="w-5 h-5 text-black" />} label="Bathrooms" value={property.bathrooms} />
-                                {property.area && <Stat icon={<Maximize2 className="w-5 h-5 text-black" />} label="Area" value={`${property.area} sqft`} />}
-                                {property._count?.reviews > 0 && <Stat icon={<Star className="w-5 h-5 text-black fill-black" />} label="Rating" value={`${property.avgRating?.toFixed(1)} (${property._count.reviews})`} />}
-                            </div>
-
-                            <div className="mt-12 pt-12 border-t border-black">
-                                <h3 className="font-black text-black uppercase tracking-widest text-[11px] mb-6">Property Description</h3>
-                                <p className="text-gray-500 leading-relaxed font-medium text-lg italic">"{property.description}"</p>
-                            </div>
-
-                            {property.amenities?.length > 0 && (
-                                <div className="mt-12 pt-12 border-t border-black">
-                                    <h3 className="font-black text-black uppercase tracking-widest text-[11px] mb-6">Premium Amenities</h3>
-                                    <div className="flex flex-wrap gap-3">
-                                        {property.amenities.map(a => (
-                                            <span key={a} className="flex items-center gap-2 px-6 py-3 bg-white border border-black text-[10px] font-black uppercase tracking-[0.1em] text-black">
-                                                {amenityIcons[a] || <span>✨</span>}{a}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
+                                </>
                             )}
+                        </>
+                    ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-800 text-gray-500">
+                            <div className="text-6xl mb-4">🏠</div>
+                            <p className="font-medium text-lg">No images available</p>
+                        </div>
+                    )}
+
+                    {/* Quick Stats Overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 max-w-7xl mx-auto px-5 sm:px-8 translate-y-1/2 sm:translate-y-1/3">
+                        <div className="card p-6 flex flex-wrap items-center justify-between gap-6 shadow-xl shadow-gray-200/50">
+                            <div>
+                                <h1 className="text-2xl sm:text-4xl font-headings font-bold text-gray-900 tracking-tight leading-tight">{property.title}</h1>
+                                <div className="flex items-center gap-2 mt-2 text-gray-500 font-medium"><MapPin className="w-4 h-4 text-indigo-500" />{property.location}, {property.city}, {property.state}</div>
+                            </div>
+                            <div className="flex flex-col items-end">
+                                <div className="text-3xl sm:text-4xl font-headings font-bold text-indigo-600 tracking-tight">ETB {Number(property.pricePerMonth).toLocaleString()}</div>
+                                <div className="text-gray-400 text-sm font-medium mt-1">per month</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-5 sm:px-8 pt-32 sm:pt-28">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    <div className="lg:col-span-2 space-y-8">
+                        {/* Features Overview */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            <Stat icon={<Bed className="w-6 h-6 text-indigo-500" />} label="Bedrooms" value={property.bedrooms} />
+                            <Stat icon={<Bath className="w-6 h-6 text-teal-500" />} label="Bathrooms" value={property.bathrooms} />
+                            {property.area && <Stat icon={<Maximize2 className="w-6 h-6 text-emerald-500" />} label="Square Feet" value={property.area} />}
+                            {property._count?.reviews > 0 && <Stat icon={<Star className="w-6 h-6 text-amber-500 fill-amber-500" />} label={`${property._count.reviews} Reviews`} value={property.avgRating?.toFixed(1)} />}
                         </div>
 
+                        {/* Description */}
+                        <div className="card p-8 sm:p-10 border-none shadow-sm">
+                            <h3 className="font-bold text-gray-900 text-xl mb-6 flex items-center gap-2"><div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center leading-none">📋</div> Description</h3>
+                            <p className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">{property.description}</p>
+                        </div>
+
+                        {/* Amenities */}
+                        {property.amenities?.length > 0 && (
+                            <div className="card p-8 sm:p-10 border-none shadow-sm">
+                                <h3 className="font-bold text-gray-900 text-xl mb-6 flex items-center gap-2"><div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center leading-none">✨</div> Premium Amenities</h3>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    {property.amenities.map(a => (
+                                        <div key={a} className="flex items-center gap-3 p-4 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-white hover:border-indigo-100 hover:shadow-sm transition-all text-gray-700 font-medium">
+                                            <div className="text-indigo-500">{amenityIcons[a] || <CheckCircle2 className="w-4 h-4 text-emerald-500" />}</div>
+                                            {a}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Reviews */}
                         {property.reviews?.length > 0 && (
-                            <div className="card p-8">
-                                <h3 className="font-black text-black uppercase tracking-widest text-sm mb-6 flex items-center gap-2"><Star className="w-5 h-5 text-black" /> Reviews ({property._count?.reviews})</h3>
-                                <div className="space-y-4">
+                            <div className="card p-8 sm:p-10 border-none shadow-sm">
+                                <h3 className="font-bold text-gray-900 text-xl mb-8 flex items-center gap-2"><div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center leading-none"><Star className="w-4 h-4 fill-amber-600" /></div> Reviews ({property._count?.reviews})</h3>
+                                <div className="space-y-6">
                                     {property.reviews.map(r => (
-                                        <div key={r.id} className="p-6 bg-gray-50 border border-gray-100">
-                                            <div className="flex items-center gap-3 mb-4">
-                                                <div className="w-10 h-10 bg-white border border-black flex items-center justify-center text-black text-sm font-black uppercase">{r.author?.name?.[0]}</div>
-                                                <div><p className="text-black text-sm font-black uppercase tracking-tight">{r.author?.name}</p><div className="flex">{[...Array(5)].map((_, i) => <Star key={i} className={`w-3.5 h-3.5 ${i < r.rating ? 'text-black fill-black' : 'text-gray-200'}`} />)}</div></div>
-                                                <span className="ml-auto text-gray-400 text-xs font-bold tracking-widest uppercase">{new Date(r.createdAt).toLocaleDateString()}</span>
+                                        <div key={r.id} className="pb-6 border-b border-gray-100 last:border-0 last:pb-0">
+                                            <div className="flex items-center gap-4 mb-3">
+                                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 text-lg font-bold">{r.author?.name?.[0]}</div>
+                                                <div>
+                                                    <p className="text-gray-900 font-bold">{r.author?.name}</p>
+                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                        <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} className={`w-3.5 h-3.5 ${i < r.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-200'}`} />)}</div>
+                                                        <span className="text-gray-400 text-xs">— {new Date(r.createdAt).toLocaleDateString()}</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <p className="text-gray-500 text-sm font-medium leading-relaxed">{r.comment}</p>
+                                            <p className="text-gray-600 leading-relaxed">{r.comment}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -138,20 +150,39 @@ export default function PropertyDetailPage() {
 
                     {/* Sidebar */}
                     <div className="space-y-6">
-                        <div className="bg-white border border-black p-10 sticky top-24">
-                            <h3 className="font-black text-black uppercase tracking-widest text-sm mb-6">Listed by</h3>
-                            <div className="flex items-center gap-5 mb-10">
-                                <div className="w-16 h-16 bg-black flex items-center justify-center text-white font-black text-2xl uppercase">{property.landlord?.name?.[0]}</div>
-                                <div><p className="text-black font-black uppercase tracking-tighter text-lg">{property.landlord?.name}</p><p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mt-1">Property Owner</p></div>
+                        <div className="card p-8 sticky top-24 border-none shadow-md shadow-gray-200/50">
+                            <h3 className="font-bold text-gray-900 text-lg mb-6">Listed By</h3>
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-600 to-indigo-800 flex items-center justify-center text-white font-bold text-2xl shadow-md">{property.landlord?.name?.[0]}</div>
+                                <div>
+                                    <p className="text-gray-900 font-bold text-lg">{property.landlord?.name}</p>
+                                    <p className="text-indigo-600 text-sm font-medium mt-0.5 flex items-center gap-1.5"><Shield className="w-4 h-4" /> Property Owner</p>
+                                </div>
                             </div>
-                            {property.landlord?.phone && <a href={`tel:${property.landlord.phone}`} className="flex items-center gap-2 text-black hover:bg-gray-50 border border-black p-4 text-[10px] font-black uppercase tracking-widest mb-4 transition-colors justify-center"><Phone className="w-4 h-4" /> Call Landlord</a>}
-                            <button onClick={() => setShowInquiry(!showInquiry)} className="btn-primary w-full !py-5 uppercase tracking-[0.2em] text-[11px]"><MessageSquare className="w-5 h-5" /> Inquire</button>
+
+                            <div className="space-y-3">
+                                {property.landlord?.phone && (
+                                    <a href={`tel:${property.landlord.phone}`} className="flex items-center justify-center gap-2 w-full py-3.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 font-semibold rounded-xl transition-colors">
+                                        <Phone className="w-4 h-4 text-gray-500" /> Call Landlord
+                                    </a>
+                                )}
+                                <button onClick={() => setShowInquiry(!showInquiry)} className={`w-full py-3.5 flex items-center justify-center gap-2 font-semibold rounded-xl transition-all shadow-sm ${showInquiry ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200'}`}>
+                                    <MessageSquare className="w-4 h-4" /> Message Landlord
+                                </button>
+                            </div>
 
                             {showInquiry && (
-                                <form onSubmit={handleInquiry} className="mt-10 space-y-6 animate-slide-down pt-10 border-t border-black">
-                                    <textarea value={inquiryMsg} onChange={(e) => setInquiryMsg(e.target.value)} placeholder={`Hi, I'm interested in "${property.title}"...`} rows={5} className="input !bg-gray-50 !border-gray-200 focus:!border-black resize-none" />
-                                    <button type="submit" disabled={sending} className="btn-primary w-full !py-5 uppercase tracking-[0.2em] text-[11px]">
-                                        {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Mail className="w-5 h-5" />}{sending ? 'Sending...' : 'Send Inquiry'}
+                                <form onSubmit={handleInquiry} className="mt-6 space-y-4 animate-slide-down p-5 bg-indigo-50/50 rounded-xl border border-indigo-100">
+                                    <div>
+                                        <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2 block">Your Message</label>
+                                        <textarea value={inquiryMsg} onChange={(e) => setInquiryMsg(e.target.value)} placeholder={`Hi, I'm interested in viewing "${property.title}"...`} rows={4} className="input shadow-sm resize-none" autoFocus />
+                                    </div>
+                                    <button type="submit" disabled={sending} className="btn-primary w-full shadow-sm">
+                                        {sending ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (
+                                            <>
+                                                <Mail className="w-4 h-4" /> Send Inquiry
+                                            </>
+                                        )}
                                     </button>
                                 </form>
                             )}
@@ -165,10 +196,10 @@ export default function PropertyDetailPage() {
 
 function Stat({ icon, label, value }) {
     return (
-        <div className="p-6 bg-gray-50 border border-gray-200 text-center">
-            <div className="flex justify-center mb-3">{icon}</div>
-            <div className="font-headings text-black uppercase tracking-tight text-2xl">{value}</div>
-            <div className="text-gray-400 text-[10px] font-headings uppercase tracking-[0.3em] mt-2">{label}</div>
+        <div className="card p-6 border-none text-center shadow-sm">
+            <div className="w-12 h-12 mx-auto bg-gray-50 rounded-2xl flex items-center justify-center mb-4 border border-gray-100">{icon}</div>
+            <div className="font-headings font-bold text-gray-900 text-2xl">{value}</div>
+            <div className="text-gray-500 text-sm font-medium mt-1">{label}</div>
         </div>
     );
 }

@@ -1,26 +1,20 @@
-import { Instrument_Serif, Unbounded, Space_Grotesk } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Toaster } from 'react-hot-toast';
 
-const instrument = Instrument_Serif({
-  weight: ['400'],
+const inter = Inter({
+  weight: ['300', '400', '500', '600', '700'],
   subsets: ['latin'],
-  variable: '--font-instrument',
+  variable: '--font-inter',
 });
 
-const unbounded = Unbounded({
-  weight: ['400', '700', '900'],
+const jakarta = Plus_Jakarta_Sans({
+  weight: ['400', '500', '600', '700', '800'],
   subsets: ['latin'],
-  variable: '--font-unbounded',
-});
-
-const spaceGrotesk = Space_Grotesk({
-  weight: ['300', '400', '500', '700'],
-  subsets: ['latin'],
-  variable: '--font-space-grotesk',
+  variable: '--font-jakarta',
 });
 
 export const metadata = {
@@ -31,26 +25,24 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${instrument.variable} ${unbounded.variable} ${spaceGrotesk.variable} font-body antialiased min-h-screen flex flex-col`}>
+      <body className={`${inter.variable} ${jakarta.variable} font-body antialiased min-h-screen flex flex-col`}>
         <AuthProvider>
           <Toaster
             position="top-center"
             toastOptions={{
               duration: 3000,
               style: {
-                background: '#000000',
+                background: '#1E293B',
                 color: '#FFFFFF',
-                borderRadius: '0px',
-                border: '1px solid #000000',
-                fontSize: '11px',
-                fontWeight: '800',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                padding: '16px 24px',
-                boxShadow: 'none',
+                borderRadius: '12px',
+                border: 'none',
+                fontSize: '14px',
+                fontWeight: '500',
+                padding: '14px 20px',
+                boxShadow: '0 10px 25px rgba(15, 23, 42, 0.15)',
               },
-              success: { iconTheme: { primary: '#FFFFFF', secondary: '#000' } },
-              error: { iconTheme: { primary: '#FF0000', secondary: '#fff' } },
+              success: { iconTheme: { primary: '#10B981', secondary: '#fff' } },
+              error: { iconTheme: { primary: '#F43F5E', secondary: '#fff' } },
             }}
           />
           <Navbar />

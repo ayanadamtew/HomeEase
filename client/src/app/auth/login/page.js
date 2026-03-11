@@ -4,59 +4,84 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { Mail, Lock, ArrowRight, Loader2, Home } from 'lucide-react';
 
 export default function LoginPage() {
-    const router = useRouter();
-    const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
+    const { login, loading } = useAuth();
+    const router = useRouter();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try { setLoading(true); await login(email, password); toast.success('Welcome back!'); router.push('/'); }
-        catch (err) { toast.error(err.response?.data?.message || 'Login failed'); }
-        finally { setLoading(false); }
+        try {
+            await login(email, password);
+            toast.success('Welcome back!');
+            router.push('/dashboard');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Login failed');
+        }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-5 bg-white">
-            <div className="w-full max-w-[420px]">
-                <div className="text-center mb-10">
-                    <Link href="/" className="inline-flex items-center gap-3 group">
-                        <div className="w-12 h-12 bg-black flex items-center justify-center border border-black transition-transform group-hover:scale-105"><Home className="w-6 h-6 text-white" /></div>
-                        <span className="text-2xl font-headings text-black tracking-widest uppercase">Home<span className="text-gray-400">Ease</span></span>
-                    </Link>
-                    <h1 className="mt-10 text-[40px] sm:text-[56px] font-headings text-black tracking-tight uppercase leading-none">Welcome back</h1>
-                    <p className="mt-3 text-gray-400 font-bold uppercase tracking-widest text-[10px]">Sign in to your account to continue</p>
+        <div className="auth-gradient flex items-center justify-center p-5">
+            <div className="w-full max-w-md">
+                <div className="text-center mb-8">
+                    <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center mx-auto shadow-lg shadow-indigo-600/30 mb-4">
+                        <span className="text-white text-xl font-bold font-headings">H</span>
+                    </div>
+                    <h1 className="text-3xl font-headings font-bold text-gray-900 tracking-tight">Welcome back</h1>
+                    <p className="text-gray-500 mt-2">Log in to your HomeEase account</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="bg-white border border-black p-10 sm:p-14 space-y-8">
-                    <div>
-                        <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Email Address</label>
-                        <div className="relative">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-black" strokeWidth={3} />
-                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required className="input !pl-12 !py-5 !bg-gray-50 !border-gray-200 focus:!border-black" />
+                <div className="card p-8 sm:p-10 shadow-xl shadow-indigo-900/5">
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        <div>
+                            <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2 block">Email Address</label>
+                            <div className="relative">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <input
+                                    type="email" required
+                                    value={email} onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="you@example.com"
+                                    className="input !pl-11"
+                                />
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Password</label>
-                        <div className="relative">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-black" strokeWidth={3} />
-                            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required className="input !pl-12 !py-5 !bg-gray-50 !border-gray-200 focus:!border-black" />
+
+                        <div>
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider block">Password</label>
+                                <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">Forgot password?</a>
+                            </div>
+                            <div className="relative">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <input
+                                    type="password" required
+                                    value={password} onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    className="input !pl-11"
+                                />
+                            </div>
                         </div>
+
+                        <button type="submit" disabled={loading} className="btn-primary w-full !py-3.5 mt-2 text-base shadow-md">
+                            {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (
+                                <>Sign in <ArrowRight className="w-4 h-4 ml-1" /></>
+                            )}
+                        </button>
+                    </form>
+
+                    <div className="mt-8 text-center border-t border-gray-100 pt-6">
+                        <p className="text-gray-500 text-sm">
+                            Don't have an account?{' '}
+                            <Link href="/auth/register" className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
+                                Create one now
+                            </Link>
+                        </p>
                     </div>
-
-                    <button type="submit" disabled={loading} className="btn-primary w-full !py-5 uppercase tracking-[0.2em] text-[11px] mt-2">
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Sign In To Account'}
-                    </button>
-
-                    <p className="text-center text-gray-400 text-xs font-bold uppercase tracking-widest pt-4">
-                        Don&apos;t have an account? <Link href="/auth/register" className="text-black hover:underline">Sign up</Link>
-                    </p>
-                </form>
+                </div>
             </div>
         </div>
     );

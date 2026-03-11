@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { servicesAPI } from '@/lib/api';
 import Link from 'next/link';
-import { Search, Star, MapPin, Loader2 } from 'lucide-react';
+import { Search, Star, MapPin, Loader2, ArrowRight } from 'lucide-react';
 
 export default function ServicesPage() {
     const [categories, setCategories] = useState([]);
@@ -19,7 +19,7 @@ export default function ServicesPage() {
         try {
             setLoading(true);
             const params = { page: 1, limit: 12 };
-            if (cat) params.category = cat;
+            if (cat && cat !== 'All') params.category = cat;
             if (q) params.search = q;
             const res = await servicesAPI.getProviders(params);
             setProviders(res.data.providers);
@@ -28,60 +28,64 @@ export default function ServicesPage() {
         finally { setLoading(false); }
     };
 
-    useEffect(() => { fetchProviders(); }, [selectedCategory]); // Updated dependency
-    const handleSearch = (e) => { e.preventDefault(); fetchProviders(selectedCategory, search); }; // Updated to use selectedCategory
+    useEffect(() => { fetchProviders(); }, [selectedCategory]);
+    const handleSearch = (e) => { e.preventDefault(); fetchProviders(selectedCategory, search); };
 
     return (
-        <div className="min-h-screen bg-white">
-            <div className="bg-white"> {/* Removed border-b border-black */}
-                <div className="max-w-7xl mx-auto">
-                    {/* Header Section */}
-                    <div className="mb-24 px-5 sm:px-8">
-                        <h1 className="text-[72px] sm:text-[140px] font-headings text-black tracking-tight leading-[0.7] mb-6">Home Services</h1>
-                        <p className="text-gray-400 font-medium uppercase tracking-[0.2em] text-[10px]">Exceptional Professionals / Vetted for your home</p>
+        <div className="min-h-screen bg-gray-50 pb-20">
+            {/* Header Section */}
+            <div className="section-gradient border-b border-gray-100">
+                <div className="max-w-7xl mx-auto px-5 sm:px-8 py-16">
+                    <div className="mb-14">
+                        <span className="badge bg-teal-50 text-teal-600 mb-4 px-4 py-1.5 font-bold uppercase tracking-wider text-xs rounded-full">Professionals</span>
+                        <h1 className="text-4xl sm:text-6xl font-headings font-extrabold text-gray-900 tracking-tight mb-4">Home Services</h1>
+                        <p className="text-gray-500 text-lg max-w-2xl">Connect with exceptional, vetted professionals for all your household needs.</p>
                     </div>
 
-                    <form onSubmit={handleSearch} className="mt-10 flex gap-3 px-5 sm:px-8"> {/* Added padding */}
+                    <form onSubmit={handleSearch} className="mt-8 flex flex-col sm:flex-row gap-3">
                         <div className="flex-1 relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-black" strokeWidth={3} />
-                            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search providers..." className="input !pl-12 !py-5 !border-gray-100 !bg-white text-sm focus:!border-black" /> {/* Refined focus state */}
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search for providers, skills, or keywords..." className="input !pl-12 !py-4 shadow-sm" />
                         </div>
-                        <button type="submit" className="btn-primary !px-10 uppercase tracking-widest text-xs">Search</button>
+                        <button type="submit" className="btn-primary !px-10 sm:w-auto w-full">Search</button>
                     </form>
 
-                    <div className="flex flex-wrap gap-2 mt-5 px-5 sm:px-8"> {/* Added padding */}
-                        <button
+                    <div className="flex flex-wrap gap-2.5 mt-8">
+                        <CategoryPill
+                            active={selectedCategory === '' || selectedCategory === 'All'}
                             onClick={() => setSelectedCategory('All')}
-                            className={`px-8 py-3 text-[10px] font-accent tracking-widest border transition-all ${selectedCategory === 'All' ? 'bg-black border-black text-white' : 'bg-white border-gray-100 text-black hover:bg-gray-50'}`}
-                        >
-                            All
-                        </button>
+                            label="All Services"
+                        />
                         {categories.map(category => (
-                            <button
+                            <CategoryPill
                                 key={category.id}
+                                active={selectedCategory === category.id}
                                 onClick={() => setSelectedCategory(category.id)}
-                                className={`px-8 py-3 text-[10px] font-accent tracking-widest border transition-all ${selectedCategory === category.id ? 'bg-black border-black text-white' : 'bg-white border-gray-100 text-black hover:bg-gray-50'}`}
-                            >
-                                {category.name}
-                            </button>
+                                label={category.name}
+                                icon={category.icon}
+                            />
                         ))}
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-5 sm:px-8 py-10">
-                <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-10">{pagination.total} provider{pagination.total !== 1 ? 's' : ''} found</p>
+            <div className="max-w-7xl mx-auto px-5 sm:px-8 py-12">
+                <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-xl font-bold text-gray-900">Featured Providers</h2>
+                    <p className="text-gray-500 text-sm font-medium bg-white px-3 py-1 rounded-full border shadow-sm">{pagination.total} provider{pagination.total !== 1 ? 's' : ''} found</p>
+                </div>
 
                 {loading ? (
-                    <div className="flex items-center justify-center py-24"><Loader2 className="w-7 h-7 text-black animate-spin" /></div>
+                    <div className="flex flex-col items-center justify-center py-24 text-gray-400 gap-4"><Loader2 className="w-8 h-8 animate-spin text-teal-500" /><p className="font-medium animate-pulse">Loading providers...</p></div>
                 ) : providers.length === 0 ? (
-                    <div className="text-center py-24">
-                        <div className="text-6xl mb-4">🔧</div>
-                        <h3 className="text-xl font-black text-black uppercase tracking-tighter">No providers found</h3>
-                        <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-2">Try a different category or search term</p>
+                    <div className="card text-center py-20 px-4 max-w-xl mx-auto mt-10 shadow-sm border-dashed">
+                        <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6"><div className="text-4xl text-gray-400">🔧</div></div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">No providers found</h3>
+                        <p className="text-gray-500">We couldn't find any professionals matching your search. Try adjusting categories or keywords.</p>
+                        <button onClick={() => { setSearch(''); setSelectedCategory('All'); }} className="btn-secondary mt-8">Clear filters</button>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 stagger">
                         {providers.map(p => <ProviderCard key={p.id} provider={p} />)}
                     </div>
                 )}
@@ -90,31 +94,49 @@ export default function ServicesPage() {
     );
 }
 
-// Removed Pill component as it's replaced by direct button rendering
+function CategoryPill({ active, onClick, label, icon }) {
+    return (
+        <button
+            onClick={onClick}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm transition-all shadow-sm border ${active
+                ? 'bg-teal-600 text-white border-teal-600 shadow-teal-600/20'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-teal-300 hover:text-teal-700 hover:bg-teal-50'}`}
+        >
+            {icon && <span>{icon}</span>}
+            {label}
+        </button>
+    );
+}
 
 function ProviderCard({ provider }) {
     return (
-        <Link href={`/services/${provider.id}`} className="group block">
-            <div className="card p-8 border border-gray-100"> {/* Changed border-black to border-gray-100 */}
-                <div className="flex items-start gap-5">
-                    <div className="w-16 h-16 bg-gray-50 border border-gray-100 flex items-center justify-center text-black text-2xl font-black uppercase flex-shrink-0"> {/* Changed border-black to border-gray-100 */}
+        <Link href={`/services/${provider.id}`} className="group block h-full">
+            <div className="card p-6 border-none shadow-sm flex flex-col h-full hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                <div className="flex items-start gap-4">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-100 flex items-center justify-center text-teal-600 text-2xl font-bold flex-shrink-0 shadow-sm">
                         {provider.user?.name?.[0]}
                     </div>
-                    <div className="flex-1 min-w-0">
-                        <h3 className="text-black font-black uppercase tracking-tight group-hover:text-black transition-colors">{provider.user?.name}</h3>
-                        <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1 line-clamp-1">{provider.headline}</p>
-                        <span className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 bg-white border border-black text-[10px] text-black font-black uppercase tracking-widest">
-                            {provider.category?.icon} {provider.serviceType || provider.category?.name}
-                        </span>
+                    <div className="flex-1 min-w-0 pt-0.5">
+                        <h3 className="text-gray-900 font-bold text-lg tracking-tight group-hover:text-teal-600 transition-colors truncate">{provider.user?.name}</h3>
+                        <p className="text-gray-500 text-sm font-medium mt-0.5 line-clamp-1">{provider.headline}</p>
+                        <div className="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-1 bg-gray-50 rounded-md border border-gray-100 text-xs text-gray-600 font-semibold">
+                            <span>{provider.category?.icon}</span> <span className="truncate">{provider.serviceType || provider.category?.name}</span>
+                        </div>
                     </div>
                 </div>
-                <p className="text-gray-500 text-sm mt-6 line-clamp-2 font-medium leading-relaxed">{provider.bio}</p>
-                <div className="flex items-center justify-between mt-6 pt-6 border-t border-black">
-                    <div className="flex items-center gap-4">
-                        <span className="text-black font-black uppercase tracking-tighter">ETB {Number(provider.hourlyRate).toFixed(0)}/hr</span>
-                        {provider.avgRating > 0 && <span className="flex items-center gap-1.5 text-black text-xs font-bold uppercase tracking-widest"><Star className="w-4 h-4 fill-black" />{provider.avgRating.toFixed(1)}</span>}
+
+                <p className="text-gray-600 text-sm mt-5 line-clamp-2 leading-relaxed flex-1">{provider.bio}</p>
+
+                <div className="mt-6 pt-5 border-t border-gray-100 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <span className="text-gray-900 font-bold">ETB {Number(provider.hourlyRate).toFixed(0)} <span className="text-gray-400 font-normal text-sm">/hr</span></span>
+                        {provider.avgRating > 0 && (
+                            <span className="flex items-center gap-1 text-amber-500 text-sm font-bold bg-amber-50 px-2.5 py-1 rounded-md">
+                                <Star className="w-3.5 h-3.5 fill-amber-500" /> {provider.avgRating.toFixed(1)}
+                            </span>
+                        )}
                     </div>
-                    <span className="flex items-center gap-1 text-gray-400 text-[10px] font-bold uppercase tracking-widest"><MapPin className="w-3.5 h-3.5" />{provider.serviceArea}</span>
+                    <span className="flex items-center gap-1 text-gray-400 text-xs font-semibold uppercase tracking-wider"><MapPin className="w-3.5 h-3.5" />{provider.serviceArea}</span>
                 </div>
             </div>
         </Link>

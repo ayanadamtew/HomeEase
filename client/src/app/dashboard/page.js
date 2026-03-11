@@ -3,402 +3,281 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { bookingsAPI, propertiesAPI, messagesAPI } from '@/lib/api';
+import { propertiesAPI, servicesAPI, bookingsAPI, messagesAPI, usersAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
-import {
-    User, Calendar, Building2, MessageSquare, Clock, CheckCircle,
-    XCircle, Loader2, MapPin, AlertCircle, Plus, Wrench, ArrowRight,
-    Star, TrendingUp, DollarSign,
-} from 'lucide-react';
+import { Building2, Wrench, MessageSquare, Calendar, Loader2, Plus, Clock, MapPin, CheckCircle2, ChevronRight, LayoutDashboard, Settings, ListPlus } from 'lucide-react';
 
 export default function DashboardPage() {
     const { user, loading: authLoading } = useAuth();
     const router = useRouter();
-    const [bookings, setBookings] = useState([]);
-    const [properties, setProperties] = useState([]);
-    const [conversations, setConversations] = useState([]);
-    const [loading, setLoading] = useState(true);
+
     const [activeTab, setActiveTab] = useState('overview');
+    const [properties, setProperties] = useState([]);
+    const [serviceProfile, setServiceProfile] = useState(null);
+    const [bookings, setBookings] = useState([]);
+    const [messages, setMessages] = useState([]);
+    const [loadingData, setLoadingData] = useState(true);
 
     useEffect(() => {
         if (!authLoading && !user) { router.push('/auth/login'); return; }
         if (!user) return;
+
         const fetchData = async () => {
             try {
-                const [cb, pb, cv] = await Promise.all([
-                    bookingsAPI.getAll({ role: 'client', limit: 100 }).catch(() => ({ data: { bookings: [] } })),
-                    bookingsAPI.getAll({ role: 'provider', limit: 100 }).catch(() => ({ data: { bookings: [] } })),
-                    messagesAPI.getConversations().catch(() => ({ data: { conversations: [] } })),
-                ]);
-                const all = [...cb.data.bookings, ...pb.data.bookings].filter((b, i, a) => a.findIndex(x => x.id === b.id) === i);
-                setBookings(all);
-                setConversations(cv.data.conversations);
-                if (user.role === 'LANDLORD' || user.role === 'ADMIN') {
-                    const p = await propertiesAPI.getMyListings().catch(() => ({ data: { properties: [] } }));
-                    setProperties(p.data.properties);
-                }
-            } catch (e) { console.error(e); }
-            finally { setLoading(false); }
+                if (user.role === 'LANDLORD' || user.role === 'ADMIN') { const p = await propertiesAPI.getMyProperties(); setProperties(p.data.properties); }
+                if (user.role === 'PROVIDER' || user.role === 'ADMIN') { try { const sp = await servicesAPI.getMyProfile(); setServiceProfile(sp.data.profile); } catch (e) { } }
+                const [bRes, mRes] = await Promise.all([bookingsAPI.getMyBookings(), messagesAPI.getConversations()]);
+                setBookings(bRes.data.bookings); setMessages(mRes.data.conversations);
+            } catch (err) { }
+            finally { setLoadingData(false); }
         };
         fetchData();
     }, [user, authLoading]);
 
-    const updateStatus = async (id, status) => {
-        try {
-            await bookingsAPI.updateStatus(id, status);
-            toast.success(`Booking ${status.toLowerCase()}`);
-            setBookings(p => p.map(b => b.id === id ? { ...b, status } : b));
-        } catch (e) { toast.error(e.response?.data?.message || 'Failed'); }
-    };
-
-    if (authLoading || loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-7 h-7 text-gray-600 animate-spin" /></div>;
+    if (authLoading || loadingData) return <div className="min-h-screen flex items-center justify-center text-gray-400"><Loader2 className="w-8 h-8 animate-spin text-indigo-500 mr-4" /> <span className="font-medium text-lg">Loading dashboard...</span></div>;
     if (!user) return null;
 
-    const pending = bookings.filter(b => b.status === 'PENDING');
-    const confirmed = bookings.filter(b => b.status === 'CONFIRMED');
-    const unread = conversations.reduce((s, c) => s + (c.unreadCount || 0), 0);
-    const revenue = bookings.filter(b => b.status === 'COMPLETED').reduce((s, b) => s + Number(b.totalPrice), 0);
-
-    // Role-based tabs
     const tabs = [
-        { id: 'overview', label: 'Overview', icon: <TrendingUp className="w-4 h-4" /> },
-        { id: 'bookings', label: `Bookings ${bookings.length > 0 ? `(${bookings.length})` : ''}`, icon: <Calendar className="w-4 h-4" /> },
-        ...(user.role === 'LANDLORD' || user.role === 'ADMIN'
-            ? [{ id: 'properties', label: `Properties (${properties.length})`, icon: <Building2 className="w-4 h-4" /> }]
-            : []),
-        ...(user.role === 'PROVIDER' || user.role === 'ADMIN'
-            ? [{ id: 'service', label: 'My Service', icon: <Wrench className="w-4 h-4" /> }]
-            : []),
-        { id: 'messages', label: `Messages${unread > 0 ? ` (${unread})` : ''}`, icon: <MessageSquare className="w-4 h-4" /> },
+        { id: 'overview', label: 'Overview', icon: <LayoutDashboard className="w-4 h-4" /> },
+        { id: 'bookings', label: 'Bookings', icon: <Calendar className="w-4 h-4" /> },
+        ...(user.role === 'LANDLORD' || user.role === 'ADMIN' ? [{ id: 'properties', label: 'My Properties', icon: <Building2 className="w-4 h-4" /> }] : []),
+        ...(user.role === 'PROVIDER' || user.role === 'ADMIN' ? [{ id: 'service', label: 'Service Profile', icon: <Wrench className="w-4 h-4" /> }] : []),
+        { id: 'messages', label: 'Messages', icon: <MessageSquare className="w-4 h-4" /> },
     ];
 
     return (
-        <div className="min-h-screen bg-white">
-            <div className="bg-white border-b border-black">
-                <div className="max-w-7xl mx-auto px-5 sm:px-8 py-12">
-                    <div className="flex flex-wrap items-center justify-between gap-6">
-                        <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 bg-black flex items-center justify-center text-white text-3xl font-black">
-                                {user.name?.[0]}
-                            </div>
-                            <div>
-                                <h1 className="text-2xl font-black text-black tracking-tighter uppercase">{user.name}</h1>
-                                <p className="text-gray-400 text-[11px] font-bold uppercase tracking-widest mt-2">{user.email} · <RoleBadge role={user.role} /></p>
-                            </div>
+        <div className="min-h-screen bg-gray-50 pb-20">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-gray-900 to-slate-800 text-white pt-12 pb-24">
+                <div className="max-w-7xl mx-auto px-5 sm:px-8">
+                    <div className="flex items-center gap-5">
+                        <div className="w-16 h-16 bg-white/10 border border-white/20 rounded-2xl flex items-center justify-center text-2xl font-bold backdrop-blur-sm shadow-xl">
+                            {user.name?.[0]}
                         </div>
-
-                        <RoleQuickAction role={user.role} />
-                    </div>
-
-                    <div className="flex gap-2 mt-10 overflow-x-auto pb-1">
-                        {tabs.map(t => (
-                            <button key={t.id} onClick={() => setActiveTab(t.id)}
-                                className={`flex items-center gap-2 px-6 py-3 border border-black text-[11px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${activeTab === t.id ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-50'}`}>
-                                {t.icon} {t.label}
-                            </button>
-                        ))}
+                        <div>
+                            <h1 className="text-3xl font-headings font-bold tracking-tight">Welcome back, {user.name?.split(' ')[0]}</h1>
+                            <p className="text-indigo-200 font-medium mt-1 flex items-center gap-2">
+                                <span className="px-2 py-0.5 bg-indigo-500/20 border border-indigo-400/30 rounded text-xs font-bold uppercase tracking-wider">{user.role}</span>
+                                {user.email}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-5 sm:px-8 py-8">
-                {activeTab === 'overview' && (
-                    <div className="space-y-6 animate-fade-in">
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                            <MetricCard title="Pending" value={pending.length} icon={<Clock className="w-5 h-5" />} color="gray" />
-                            <MetricCard title="Confirmed" value={confirmed.length} icon={<CheckCircle className="w-5 h-5" />} color="gray" />
-                            <MetricCard title="Total Bookings" value={bookings.length} icon={<Calendar className="w-5 h-5" />} color="gray" />
-                            <MetricCard title={user.role === 'PROVIDER' ? 'Revenue' : 'Unread'} value={user.role === 'PROVIDER' ? `ETB ${revenue.toFixed(0)}` : unread} icon={user.role === 'PROVIDER' ? <DollarSign className="w-5 h-5" /> : <MessageSquare className="w-5 h-5" />} color="gray" />
+            <div className="max-w-7xl mx-auto px-5 sm:px-8 -mt-10">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    {/* Sidebar Nav */}
+                    <div className="card p-4 border-none shadow-md shadow-gray-200/50 bg-white/90 backdrop-blur-xl h-fit sticky top-24">
+                        <nav className="flex flex-col gap-1.5">
+                            {tabs.map(t => (
+                                <button key={t.id} onClick={() => setActiveTab(t.id)} className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all ${activeTab === t.id ? 'bg-indigo-50 text-indigo-700 shadow-sm shadow-indigo-100/50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
+                                    <div className={activeTab === t.id ? 'text-indigo-600' : 'text-gray-400'}>{t.icon}</div>
+                                    {t.label}
+                                </button>
+                            ))}
+                        </nav>
+                        <div className="mt-6 pt-4 border-t border-gray-100">
+                            <Link href="/auth/login" className="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all">
+                                <Settings className="w-4 h-4 text-gray-400" /> Account Settings
+                            </Link>
                         </div>
-                        <RoleQuickCards role={user.role} propertiesCount={properties.length} />
+                    </div>
 
-                        {pending.length > 0 && (
-                            <div className="bg-white border border-black p-8">
-                                <h3 className="font-black text-black uppercase tracking-widest text-sm mb-6 flex items-center gap-3">
-                                    <AlertCircle className="w-5 h-5 text-black" /> Action Required ({pending.length})
-                                </h3>
-                                <div className="space-y-4">
-                                    {pending.slice(0, 3).map(b => <BookingRow key={b.id} booking={b} user={user} onUpdate={updateStatus} />)}
-                                    {pending.length > 3 && <button onClick={() => setActiveTab('bookings')} className="text-black text-[11px] font-black uppercase tracking-widest hover:underline mt-4">View all {pending.length} pending →</button>}
+                    {/* Content Area */}
+                    <div className="lg:col-span-3">
+                        {activeTab === 'overview' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <MetricCard label="Active Bookings" value={bookings.filter(b => b.status === 'PENDING' || b.status === 'CONFIRMED').length} icon={<Calendar className="text-indigo-600" />} color="indigo" />
+                                    <MetricCard label="Unread Msgs" value={messages.length} icon={<MessageSquare className="text-blue-600" />} color="blue" />
+                                    {user.role === 'LANDLORD' && <MetricCard label="Properties" value={properties.length} icon={<Building2 className="text-emerald-600" />} color="emerald" />}
+                                    {user.role === 'PROVIDER' && <MetricCard label="Reviews" value={serviceProfile?._count?.reviews || 0} icon={<Star className="text-amber-600" />} color="amber" />}
                                 </div>
+                                <RoleQuickCards role={user.role} propertiesCount={properties.length} hasProfile={!!serviceProfile} />
                             </div>
                         )}
-                    </div>
-                )}
 
-                {activeTab === 'bookings' && (
-                    <div className="space-y-3 animate-fade-in">
-                        {bookings.length === 0 ? (
-                            <Empty emoji="📅" title="No bookings yet" desc={user.role === 'CLIENT' ? 'Browse services and book your first provider' : 'Bookings from clients will appear here'} link={user.role === 'CLIENT' ? '/services' : null} linkLabel="Browse Services" />
-                        ) : (
-                            <>
-                                <BookingFilters bookings={bookings} onUpdate={updateStatus} user={user} />
-                            </>
-                        )}
-                    </div>
-                )}
-
-                {activeTab === 'properties' && (
-                    <div className="animate-fade-in">
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="font-black text-black uppercase tracking-tighter text-xl">{properties.length} Properties Listed</h3>
-                            <Link href="/dashboard/add-property" className="btn-primary !py-3 !px-8 !text-[11px] !uppercase !tracking-widest">
-                                <Plus className="w-4 h-4" strokeWidth={3} /> Add Property
-                            </Link>
-                        </div>
-                        {properties.length === 0 ? (
-                            <Empty emoji="🏠" title="No properties listed" desc="Start listing properties for renters" link="/dashboard/add-property" linkLabel="Add First Property" />
-                        ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                {properties.map(p => <PropertyRow key={p.id} property={p} />)}
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {activeTab === 'service' && (
-                    <div className="animate-fade-in max-w-xl">
-                        <div className="bg-white border border-black p-12 text-center">
-                            <div className="w-20 h-20 bg-black flex items-center justify-center mx-auto mb-6">
-                                <Wrench className="w-10 h-10 text-white" />
-                            </div>
-                            <h3 className="text-2xl font-black text-black uppercase tracking-tighter">Manage Your Service</h3>
-                            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-4 mb-10 leading-relaxed">
-                                Update headline, bio, rates, service area, and availability — or pause new bookings.
-                            </p>
-                            <Link href="/dashboard/provider-profile" className="btn-primary !py-4 w-full justify-center !text-[12px] !uppercase !tracking-[0.2em]">
-                                <Wrench className="w-5 h-5" /> Edit Service Profile
-                            </Link>
-                            {bookings.filter(b => b.serviceProfile?.user?.id === user.id).length > 0 && (
-                                <div className="mt-5 pt-5 border-t border-slate-100 text-left">
-                                    <p className="text-sm font-semibold text-slate-700 mb-3">Recent Provider Bookings</p>
-                                    <div className="space-y-2">
-                                        {bookings.filter(b => b.serviceProfile?.user?.id === user.id).slice(0, 3).map(b => (
-                                            <BookingRow key={b.id} booking={b} user={user} onUpdate={updateStatus} />
+                        {activeTab === 'bookings' && (
+                            <div className="card p-8 border-none shadow-sm animate-fade-in">
+                                <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2"><Calendar className="w-5 h-5 text-indigo-500" /> Bookings & Appointments</h2>
+                                {bookings.length === 0 ? (
+                                    <div className="text-center py-16 px-4 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 border shadow-sm"><Calendar className="w-6 h-6 text-gray-400" /></div>
+                                        <p className="text-gray-900 font-bold text-lg">No active bookings</p>
+                                        <p className="text-gray-500 text-sm mt-1">When you request a service, it will appear here.</p>
+                                        <Link href="/services" className="btn-secondary mt-6">Find Services</Link>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {bookings.map(b => (
+                                            <div key={b.id} className="flex flex-col sm:flex-row items-center gap-5 p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:border-indigo-100 hover:shadow-md transition-all">
+                                                <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg border border-indigo-100 shrink-0">
+                                                    {b.serviceProfile?.user?.name?.[0] || 'S'}
+                                                </div>
+                                                <div className="flex-1 min-w-0 text-center sm:text-left">
+                                                    <h4 className="font-bold text-gray-900 truncate">{b.serviceProfile?.serviceType || 'Service Booking'}</h4>
+                                                    <p className="text-sm font-medium text-gray-500 flex items-center justify-center sm:justify-start gap-1.5 mt-1"><Clock className="w-3.5 h-3.5" /> {new Date(b.startTime).toLocaleString()} - {new Date(b.endTime).toLocaleTimeString()}</p>
+                                                </div>
+                                                <div className="flex shrink-0">
+                                                    <span className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider border ${b.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-200' : b.status === 'CONFIRMED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
+                                                        {b.status}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         ))}
                                     </div>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'properties' && (
+                            <div className="card p-8 border-none shadow-sm animate-fade-in">
+                                <div className="flex justify-between items-center mb-8">
+                                    <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2"><Building2 className="w-5 h-5 text-indigo-500" /> Managed Properties</h2>
+                                    <Link href="/dashboard/add-property" className="btn-primary !px-4 !py-2 !text-sm"><Plus className="w-4 h-4" /> Add Property</Link>
                                 </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {activeTab === 'messages' && (
-                    <div className="space-y-3 animate-fade-in">
-                        {conversations.length === 0 ? (
-                            <Empty emoji="💬" title="No conversations" desc="Start a conversation from a property or service listing" />
-                        ) : conversations.map(c => {
-                            const other = c.participantOne?.id === user.id ? c.participantTwo : c.participantOne;
-                            return (
-                                <Link key={c.id} href={`/messages?conv=${c.id}`} className="card p-4 card-interactive flex items-center gap-4 !rounded-2xl group">
-                                    <div className="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center text-black font-bold flex-shrink-0">{other?.name?.[0]}</div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-slate-900 font-medium text-sm group-hover:text-black transition-colors">{other?.name}</p>
-                                            {c.unreadCount > 0 && <span className="w-5 h-5 bg-gray-800 text-white text-[11px] rounded-full flex items-center justify-center font-bold">{c.unreadCount}</span>}
-                                        </div>
-                                        <p className="text-slate-400 text-sm line-clamp-1">{c.messages?.[0]?.content || 'Start chatting...'}</p>
+                                {properties.length === 0 ? (
+                                    <div className="text-center py-16 px-4 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 border shadow-sm"><Building2 className="w-6 h-6 text-gray-400" /></div>
+                                        <p className="text-gray-900 font-bold text-lg">No properties listed</p>
+                                        <p className="text-gray-500 text-sm mt-1">Start monetizing your real estate by listing a property.</p>
                                     </div>
-                                </Link>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
+                                ) : (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                        {properties.map(p => (
+                                            <div key={p.id} className="group border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-indigo-100 transition-all">
+                                                <div className="h-32 bg-gray-100 relative overflow-hidden">
+                                                    {p.images?.[0] ? <img src={p.images[0].imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" /> : <div className="w-full h-full flex justify-center items-center text-gray-300">No Image</div>}
+                                                    <div className="absolute top-2 right-2 bg-white/90 backdrop-blur px-2.5 py-1 rounded-md text-xs font-bold shadow-sm">
+                                                        ETB {Number(p.pricePerMonth).toLocaleString()}
+                                                    </div>
+                                                </div>
+                                                <div className="p-4">
+                                                    <h4 className="font-bold text-gray-900 truncate">{p.title}</h4>
+                                                    <p className="text-xs text-gray-500 mt-1 flex items-center gap-1 font-medium"><MapPin className="w-3.5 h-3.5" /> {p.city}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
-function RoleBadge({ role }) {
-    return <span className="font-black uppercase tracking-widest text-[10px] text-black border border-black px-2 py-0.5 ml-2">{role}</span>;
-}
+                        {activeTab === 'service' && (
+                            <div className="card p-8 border-none shadow-sm animate-fade-in">
+                                <h2 className="text-xl font-bold text-gray-900 mb-8 flex items-center gap-2"><Wrench className="w-5 h-5 text-indigo-500" /> Service Profile</h2>
+                                {!serviceProfile ? (
+                                    <div className="text-center py-16 px-4 bg-indigo-50/50 rounded-2xl border border-dashed border-indigo-200">
+                                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 border border-indigo-100 shadow-sm"><ListPlus className="w-6 h-6 text-indigo-500" /></div>
+                                        <p className="text-gray-900 font-bold text-lg">Set up your profile</p>
+                                        <p className="text-gray-500 text-sm mt-1 max-w-sm mx-auto mb-6">Create a profile to showcase your skills, set your rates, and start receiving booking requests.</p>
+                                        <Link href="/dashboard/provider-profile" className="btn-primary">Create Service Profile</Link>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <div className="flex items-start justify-between p-6 bg-gray-50 rounded-2xl border border-gray-100 mb-6 relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                                            <div className="relative">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <h3 className="text-lg font-bold text-gray-900">{serviceProfile.serviceType}</h3>
+                                                    <span className={`px-2.5 py-1 text-xs font-bold uppercase tracking-wider rounded-md border ${serviceProfile.isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
+                                                        {serviceProfile.isActive ? 'Active' : 'Inactive'}
+                                                    </span>
+                                                </div>
+                                                <p className="text-gray-600 font-medium mb-4">{serviceProfile.headline}</p>
+                                                <div className="flex items-center gap-4 text-sm">
+                                                    <span className="font-bold text-gray-900">ETB {Number(serviceProfile.hourlyRate).toFixed(0)}<span className="text-gray-400 font-medium">/hr</span></span>
+                                                    <span className="text-gray-300">|</span>
+                                                    <span className="text-gray-600 font-medium flex items-center gap-1.5"><MapPin className="w-4 h-4 text-gray-400" /> {serviceProfile.serviceArea}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-end pr-2">
+                                            <Link href="/dashboard/provider-profile" className="btn-secondary !text-sm"><Settings className="w-4 h-4" /> Edit Profile</Link>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
-function RoleQuickAction({ role }) {
-    if (role === 'LANDLORD' || role === 'ADMIN') {
-        return (
-            <Link href="/dashboard/add-property" className="btn-primary !py-3 !px-8 !text-[11px] !uppercase !tracking-widest">
-                <Plus className="w-4 h-4" strokeWidth={3} /> Add Property
-            </Link>
-        );
-    }
-    if (role === 'PROVIDER') {
-        return (
-            <Link href="/dashboard/provider-profile" className="btn-primary !py-3 !px-8 !text-[11px] !uppercase !tracking-widest">
-                <Wrench className="w-4 h-4" /> Edit Service Profile
-            </Link>
-        );
-    }
-    return (
-        <Link href="/services" className="btn-secondary !py-3 !px-8 !text-[11px] !uppercase !tracking-widest !border-black">
-            Browse Services <ArrowRight className="w-4 h-4" />
-        </Link>
-    );
-}
-
-function RoleQuickCards({ role, propertiesCount }) {
-    if (role === 'CLIENT') {
-        return (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <QuickCard href="/properties" emoji="🏠" title="Browse Properties" desc="Find your next rental home" color="gray" />
-                <QuickCard href="/services" emoji="🔧" title="Browse Services" desc="Book a trusted local professional" color="gray" />
-            </div>
-        );
-    }
-    if (role === 'LANDLORD') {
-        return (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <QuickCard href="/dashboard/add-property" emoji="➕" title="List a Property" desc="Add a new rental listing" color="gray" />
-                <QuickCard href="/properties" emoji="🔍" title="Browse Market" desc="See what's listed in your area" color="gray" />
-            </div>
-        );
-    }
-    if (role === 'PROVIDER') {
-        return (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <QuickCard href="/dashboard/provider-profile" emoji="✏️" title="Update Profile" desc="Keep your service profile current" color="gray" />
-                <QuickCard href={`/services`} emoji="👁️" title="View Your Listing" desc="See how clients see your profile" color="gray" />
-            </div>
-        );
-    }
-    if (role === 'ADMIN') {
-        return (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <QuickCard href="/dashboard/add-property" emoji="🏗️" title="Add Property" desc="List a new property" color="gray" />
-                <QuickCard href="/dashboard/provider-profile" emoji="🔧" title="Provider Profile" desc="Manage service profile" color="gray" />
-                <QuickCard href="/properties" emoji="📊" title="Browse All" desc="View marketplace" color="gray" />
-            </div>
-        );
-    }
-    return null;
-}
-
-function QuickCard({ href, emoji, title, desc, color }) {
-    return (
-        <Link href={href} className="bg-white border border-gray-100 p-6 flex items-center gap-6 transition-all hover:border-black group">
-            <div className="text-4xl">{emoji}</div>
-            <div>
-                <p className="text-black font-black text-[15px] uppercase tracking-tighter group-hover:text-black transition-colors">{title}</p>
-                <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mt-1.5">{desc}</p>
-            </div>
-            <ArrowRight className="w-5 h-5 text-gray-200 group-hover:text-black ml-auto transition-all" />
-        </Link>
-    );
-}
-
-function BookingFilters({ bookings, onUpdate, user }) {
-    const [filter, setFilter] = useState('ALL');
-    const filters = ['ALL', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
-    const filtered = filter === 'ALL' ? bookings : bookings.filter(b => b.status === filter);
-    return (
-        <div>
-            <div className="flex flex-wrap gap-2 mb-8">
-                {filters.map(f => (
-                    <button key={f} onClick={() => setFilter(f)} className={`px-5 py-2 border border-black text-[10px] font-black uppercase tracking-widest transition-all ${filter === f ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-50'}`}>
-                        {f === 'ALL' ? `All (${bookings.length})` : f}
-                    </button>
-                ))}
-            </div>
-            <div className="space-y-3">
-                {filtered.map(b => <BookingRow key={b.id} booking={b} user={user} onUpdate={onUpdate} />)}
-            </div>
-        </div>
-    );
-}
-
-function MetricCard({ title, value, icon, color }) {
-    return (
-        <div className="bg-white border border-gray-100 p-6">
-            <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-black text-white flex items-center justify-center">{icon}</div>
-                <span className="text-3xl font-black text-black tracking-tighter">{value}</span>
-            </div>
-            <div className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">{title}</div>
-        </div>
-    );
-}
-
-function BookingRow({ booking, user, onUpdate }) {
-    const isProv = booking.serviceProfile?.user?.id === user.id;
-    const name = isProv ? booking.client?.name : booking.serviceProfile?.user?.name;
-    return (
-        <div className="border border-gray-100 p-6 bg-white hover:border-black transition-colors">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-                <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 bg-gray-50 border border-gray-200 flex items-center justify-center text-black font-black text-sm uppercase">{name?.[0]}</div>
-                    <div>
-                        <p className="text-black font-black text-[15px] uppercase tracking-tighter">{name}</p>
-                        <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mt-1.5">
-                            {booking.serviceProfile?.category?.icon} {booking.serviceProfile?.serviceType || booking.serviceProfile?.category?.name} · {new Date(booking.startTime).toLocaleDateString()}
-                        </p>
+                        {activeTab === 'messages' && (
+                            <div className="card p-8 border-none shadow-sm animate-fade-in">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2"><MessageSquare className="w-5 h-5 text-indigo-500" /> Recent Messages</h2>
+                                    <Link href="/messages" className="text-indigo-600 hover:text-indigo-700 font-semibold text-sm flex items-center">Open full inbox <ChevronRight className="w-4 h-4" /></Link>
+                                </div>
+                                {messages.length === 0 ? (
+                                    <div className="text-center py-16 px-4 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 border shadow-sm"><MessageSquare className="w-6 h-6 text-gray-400" /></div>
+                                        <p className="text-gray-900 font-bold text-lg">Your inbox is empty</p>
+                                        <p className="text-gray-500 text-sm mt-1">Messages from clients or landlords will appear here.</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {messages.slice(0, 5).map(c => {
+                                            const otherUser = c.participants.find(p => p.id !== user.id) || c.participants[0];
+                                            const lastMsg = c.messages[0];
+                                            return (
+                                                <Link key={c.id} href={`/messages?conv=${c.id}`} className="flex items-center gap-4 p-4 border border-gray-100 rounded-2xl hover:bg-gray-50 hover:border-gray-200 transition-colors group">
+                                                    <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center font-bold text-lg group-hover:bg-indigo-600 group-hover:text-white transition-colors">{otherUser.name?.[0]}</div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex justify-between items-center mb-0.5">
+                                                            <h4 className="font-bold text-gray-900 truncate">{otherUser.name}</h4>
+                                                            {lastMsg && <span className="text-xs font-semibold text-gray-400">{new Date(lastMsg.createdAt).toLocaleDateString()}</span>}
+                                                        </div>
+                                                        {lastMsg ? <p className="text-sm font-medium text-gray-500 truncate">{lastMsg.content}</p> : <p className="text-sm font-medium text-gray-400 italic">No messages yet</p>}
+                                                    </div>
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
-                <div className="flex items-center gap-4">
-                    <span className="text-black font-black text-[15px] uppercase tracking-tighter">ETB {Number(booking.totalPrice).toFixed(0)}</span>
-                    <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest border border-black ${booking.status === 'CANCELLED' ? 'bg-black text-white' : 'bg-white text-black'}`}>
-                        {booking.status}
-                    </span>
-                </div>
             </div>
-            {booking.status === 'PENDING' && (
-                <div className="flex gap-4 mt-6 pt-6 border-t border-gray-100">
-                    {isProv && (
-                        <button onClick={() => onUpdate(booking.id, 'CONFIRMED')} className="flex-1 py-3 bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center justify-center gap-2">
-                            <CheckCircle className="w-4 h-4" /> Accept
-                        </button>
-                    )}
-                    <button onClick={() => onUpdate(booking.id, 'CANCELLED')} className="flex-1 py-3 bg-white text-black border border-black text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
-                        <XCircle className="w-4 h-4" /> Decline
-                    </button>
-                </div>
-            )}
-            {booking.status === 'CONFIRMED' && isProv && (
-                <div className="flex gap-4 mt-6 pt-6 border-t border-gray-100">
-                    <button onClick={() => onUpdate(booking.id, 'COMPLETED')} className="flex-1 py-3 bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center justify-center gap-2">
-                        <CheckCircle className="w-4 h-4" /> Mark Complete
-                    </button>
-                    <button onClick={() => onUpdate(booking.id, 'CANCELLED')} className="flex-1 py-3 bg-white text-black border border-black text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
-                        <XCircle className="w-4 h-4" /> Cancel
-                    </button>
-                </div>
-            )}
         </div>
     );
 }
 
-function PropertyRow({ property }) {
+function MetricCard({ label, value, icon, color }) {
+    const bgs = { indigo: 'bg-indigo-50 border-indigo-100', blue: 'bg-blue-50 border-blue-100', emerald: 'bg-emerald-50 border-emerald-100', amber: 'bg-amber-50 border-amber-100' };
     return (
-        <Link href={`/properties/${property.id}`} className="bg-white border border-gray-100 p-6 transition-all hover:border-black group">
-            <div className="flex items-start justify-between gap-6">
-                <div className="flex-1">
-                    <h4 className="text-black font-black text-[15px] uppercase tracking-tighter group-hover:text-black transition-colors">{property.title}</h4>
-                    <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mt-2 flex items-center gap-1">
-                        <MapPin className="w-3 h-3" /> {property.city}
-                    </p>
-                </div>
-                <div className="text-right">
-                    <p className="text-black font-black text-[15px] uppercase tracking-tighter">ETB {Number(property.pricePerMonth).toLocaleString()}</p>
-                    <span className={`inline-block px-3 py-1 text-[10px] font-black uppercase tracking-widest border border-black mt-2 ${property.status === 'AVAILABLE' ? 'bg-white text-black' : 'bg-black text-white'}`}>
-                        {property.status}
-                    </span>
-                </div>
-            </div>
-            <div className="flex gap-4 mt-6 pt-6 border-t border-gray-100 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <span>{property.bedrooms} Bed</span>
-                <span>{property.bathrooms} Bath</span>
-                {property.area && <span>{property.area} sqft</span>}
-            </div>
-        </Link>
+        <div className="card p-5 border-none shadow-sm">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 border ${bgs[color]}`}>{icon}</div>
+            <div className="text-3xl font-headings font-bold text-gray-900 mb-1">{value}</div>
+            <div className="text-gray-500 text-xs font-bold uppercase tracking-wider">{label}</div>
+        </div>
     );
 }
 
-function Empty({ emoji, title, desc, link, linkLabel }) {
+function RoleQuickCards({ role, propertiesCount, hasProfile }) {
+    if (role === 'CLIENT') return null;
     return (
-        <div className="text-center py-32 bg-gray-50 border border-black border-dashed">
-            <div className="text-6xl mb-6">{emoji}</div>
-            <h3 className="text-xl font-black text-black uppercase tracking-tighter">{title}</h3>
-            {desc && <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-4 leading-relaxed max-w-sm mx-auto">{desc}</p>}
-            {link && <Link href={link} className="btn-primary !py-3.5 !px-10 !text-[11px] !uppercase !tracking-[0.2em] inline-flex mt-10">{linkLabel} <ArrowRight className="w-4 h-4 ml-2" /></Link>}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+            {role === 'LANDLORD' || role === 'ADMIN' ? (
+                <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 p-8 rounded-2xl text-white relative overflow-hidden shadow-lg shadow-indigo-900/20">
+                    <div className="absolute -right-4 -top-4 text-white/10"><Building2 className="w-32 h-32" /></div>
+                    <div className="relative z-10">
+                        <h3 className="text-xl font-bold mb-2">Grow your portfolio</h3>
+                        <p className="text-indigo-200 text-sm mb-6 max-w-sm line-clamp-2">List your properties and start receiving inquiries from verified renters on HomeEase.</p>
+                        <Link href="/dashboard/add-property" className="inline-flex items-center gap-2 bg-white text-indigo-700 px-5 py-2.5 rounded-xl font-bold text-sm hover:shadow-lg transition-all"><Plus className="w-5 h-5" /> Add Property</Link>
+                    </div>
+                </div>
+            ) : null}
+            {role === 'PROVIDER' || role === 'ADMIN' ? (
+                <div className="bg-gradient-to-br from-teal-600 to-emerald-700 p-8 rounded-2xl text-white relative overflow-hidden shadow-lg shadow-teal-900/20">
+                    <div className="absolute -right-4 -top-4 text-white/10"><Wrench className="w-32 h-32" /></div>
+                    <div className="relative z-10">
+                        <h3 className="text-xl font-bold mb-2">{hasProfile ? 'Update your services' : 'Offer your services'}</h3>
+                        <p className="text-teal-100 text-sm mb-6 max-w-sm line-clamp-2">{hasProfile ? 'Keep your availability and rates up to date to attract more clients.' : 'Create a profile to showcase your skills and start getting booked.'}</p>
+                        <Link href="/dashboard/provider-profile" className="inline-flex items-center gap-2 bg-white text-teal-700 px-5 py-2.5 rounded-xl font-bold text-sm hover:shadow-lg transition-all"><Plus className="w-5 h-5" /> {hasProfile ? 'Edit Profile' : 'Create Profile'}</Link>
+                    </div>
+                </div>
+            ) : null}
         </div>
     );
 }

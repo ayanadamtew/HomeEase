@@ -4,75 +4,139 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+import { User, Mail, Lock, Loader2, ArrowRight, Building, Wrench, Briefcase } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { Mail, Lock, User, Phone, Loader2, Home } from 'lucide-react';
 
 export default function RegisterPage() {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [role, setRole] = useState('CLIENT');
+    const { register, loading } = useAuth();
     const router = useRouter();
-    const { register } = useAuth();
-    const [form, setForm] = useState({ name: '', email: '', password: '', phone: '', role: 'CLIENT' });
-    const [loading, setLoading] = useState(false);
-    const update = (f) => (e) => setForm({ ...form, [f]: e.target.value });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (form.password.length < 6) { toast.error('Password must be at least 6 characters'); return; }
-        try { setLoading(true); await register(form); toast.success('Welcome to HomeEase!'); router.push('/'); }
-        catch (err) { toast.error(err.response?.data?.message || 'Registration failed'); }
-        finally { setLoading(false); }
+        try {
+            await register(name, email, password, role);
+            toast.success('Account created successfully!');
+            router.push('/dashboard');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Registration failed');
+        }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-5 py-20 bg-white">
-            <div className="w-full max-w-[420px]">
-                <div className="text-center mb-10">
-                    <Link href="/" className="inline-flex items-center gap-3 group">
-                        <div className="w-12 h-12 bg-black flex items-center justify-center border border-black transition-transform group-hover:scale-105"><Home className="w-6 h-6 text-white" /></div>
-                        <span className="text-2xl font-headings text-black tracking-widest uppercase">Home<span className="text-gray-400">Ease</span></span>
-                    </Link>
-                    <h1 className="mt-10 text-[40px] sm:text-[56px] font-headings text-black tracking-tight uppercase leading-none">Create your account</h1>
-                    <p className="mt-3 text-gray-400 font-bold uppercase tracking-widest text-[10px]">Get started with HomeEase today</p>
+        <div className="auth-gradient flex items-center justify-center p-5 min-h-[calc(100vh-72px)] py-12">
+            <div className="w-full max-w-md animate-fade-up">
+                <div className="text-center mb-8">
+                    <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center mx-auto shadow-lg shadow-indigo-600/30 mb-4">
+                        <span className="text-white text-xl font-bold font-headings">H</span>
+                    </div>
+                    <h1 className="text-3xl font-headings font-bold text-gray-900 tracking-tight">Create an account</h1>
+                    <p className="text-gray-500 mt-2">Join HomeEase to find homes and services</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="bg-white border border-black p-10 sm:p-14 space-y-6">
-                    <Field icon={<User className="w-4 h-4 text-black" />} label="Full Name" type="text" value={form.name} onChange={update('name')} placeholder="John Doe" required />
-                    <Field icon={<Mail className="w-4 h-4 text-black" />} label="Email" type="email" value={form.email} onChange={update('email')} placeholder="you@example.com" required />
-                    <Field icon={<Lock className="w-4 h-4 text-black" />} label="Password" type="password" value={form.password} onChange={update('password')} placeholder="Min 6 characters" required />
-                    <Field icon={<Phone className="w-4 h-4 text-black" />} label="Phone (optional)" type="tel" value={form.phone} onChange={update('phone')} placeholder="+1 234 567 8900" />
+                <div className="card p-8 sm:p-10 shadow-xl shadow-indigo-900/5">
+                    <form onSubmit={handleSubmit} className="space-y-5">
 
-                    <div>
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 block">I want to</label>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            {[{ value: 'CLIENT', label: '🏠 Rent / Book' }, { value: 'LANDLORD', label: '🏗️ List Property' }, { value: 'PROVIDER', label: '🔧 Offer Service' }].map((r) => (
-                                <button type="button" key={r.value} onClick={() => setForm({ ...form, role: r.value })} className={`p-6 text-[11px] font-headings uppercase tracking-widest border transition-all text-center ${form.role === r.value ? 'bg-black border-black text-white' : 'bg-white border-black text-black hover:bg-gray-50'}`}>
-                                    <div className="text-2xl mb-2">{r.label.split(' ')[0]}</div>
-                                    {r.label.split(' ').slice(1).join(' ')}
-                                </button>
-                            ))}
+                        <div>
+                            <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-3 block">I want to...</label>
+                            <div className="grid grid-cols-3 gap-3">
+                                <RoleCard
+                                    icon={<User className="w-5 h-5" />}
+                                    label="Rent / Hire"
+                                    active={role === 'CLIENT'}
+                                    onClick={() => setRole('CLIENT')}
+                                />
+                                <RoleCard
+                                    icon={<Building className="w-5 h-5" />}
+                                    label="List Property"
+                                    active={role === 'LANDLORD'}
+                                    onClick={() => setRole('LANDLORD')}
+                                />
+                                <RoleCard
+                                    icon={<Wrench className="w-5 h-5" />}
+                                    label="Offer Service"
+                                    active={role === 'PROVIDER'}
+                                    onClick={() => setRole('PROVIDER')}
+                                />
+                            </div>
                         </div>
+
+                        <div className="pt-2">
+                            <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2 block">Full Name</label>
+                            <div className="relative">
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <input
+                                    type="text" required
+                                    value={name} onChange={(e) => setName(e.target.value)}
+                                    placeholder="John Doe"
+                                    className="input !pl-11"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2 block">Email Address</label>
+                            <div className="relative">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <input
+                                    type="email" required
+                                    value={email} onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="you@example.com"
+                                    className="input !pl-11"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2 block">Password</label>
+                            <div className="relative">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <input
+                                    type="password" required minLength="6"
+                                    value={password} onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    className="input !pl-11"
+                                />
+                            </div>
+                            <p className="text-[11px] text-gray-400 mt-2 font-medium">Must be at least 6 characters long.</p>
+                        </div>
+
+                        <button type="submit" disabled={loading} className="btn-primary w-full !py-3.5 mt-4 text-base shadow-md">
+                            {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (
+                                <>Create Account <ArrowRight className="w-4 h-4 ml-1" /></>
+                            )}
+                        </button>
+                    </form>
+
+                    <div className="mt-8 text-center border-t border-gray-100 pt-6">
+                        <p className="text-gray-500 text-sm">
+                            Already have an account?{' '}
+                            <Link href="/auth/login" className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
+                                Log in
+                            </Link>
+                        </p>
                     </div>
-
-                    <button type="submit" disabled={loading} className="btn-primary w-full !py-5 uppercase tracking-[0.2em] text-[11px] mt-6">
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Create Account'}
-                    </button>
-
-                    <p className="text-center text-gray-400 text-xs font-bold uppercase tracking-widest pt-4">
-                        Already have an account? <Link href="/auth/login" className="text-black hover:underline">Sign in</Link>
-                    </p>
-                </form>
+                </div>
             </div>
         </div>
     );
 }
 
-function Field({ icon, label, ...props }) {
+function RoleCard({ icon, label, active, onClick }) {
     return (
-        <div>
-            <label className="text-[10px] font-headings text-black uppercase tracking-[0.3em] mb-3 block">{label}</label>
-            <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-black">{icon}</div>
-                <input {...props} className="input !pl-12 !py-5 !bg-gray-50 !border-gray-200 focus:!border-black" />
-            </div>
-        </div>
+        <button
+            type="button"
+            onClick={onClick}
+            className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${active
+                    ? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-sm'
+                    : 'bg-white border-gray-200 text-gray-500 hover:border-indigo-300 hover:bg-gray-50'
+                }`}
+        >
+            <div className={active ? 'text-indigo-600' : 'text-gray-400'}>{icon}</div>
+            <span className={`text-[11px] font-bold mt-2 uppercase tracking-wide ${active ? 'text-indigo-700' : 'text-gray-500'}`}>{label}</span>
+        </button>
     );
 }
