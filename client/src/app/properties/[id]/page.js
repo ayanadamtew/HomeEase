@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { propertiesAPI, messagesAPI } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
-import { MapPin, Bed, Bath, Maximize2, Star, ArrowLeft, MessageSquare, ChevronLeft, ChevronRight, Loader2, Mail, Wifi, Car, Dumbbell, TreeDeciduous, Phone, CheckCircle2 } from 'lucide-react';
+import { MapPin, Bed, Bath, Maximize2, Star, ArrowLeft, MessageSquare, ChevronLeft, ChevronRight, Loader2, Mail, Wifi, Car, Dumbbell, TreeDeciduous, Phone, CheckCircle2, Shield } from 'lucide-react';
 
 const amenityIcons = { WiFi: <Wifi className="w-4 h-4" />, Parking: <Car className="w-4 h-4" />, Gym: <Dumbbell className="w-4 h-4" />, Pool: <TreeDeciduous className="w-4 h-4" /> };
 
