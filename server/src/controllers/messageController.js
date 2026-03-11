@@ -30,7 +30,11 @@ const startConversation = async (req, res, next) => {
         });
 
         if (existing) {
-            return res.json({ conversation: existing, isNew: false });
+            const normalized = {
+                ...existing,
+                participants: [existing.participantOne, existing.participantTwo]
+            };
+            return res.json({ conversation: normalized, isNew: false });
         }
 
         const conversation = await prisma.conversation.create({
@@ -46,7 +50,12 @@ const startConversation = async (req, res, next) => {
             },
         });
 
-        res.status(201).json({ conversation, isNew: true });
+        const normalized = {
+            ...conversation,
+            participants: [conversation.participantOne, conversation.participantTwo]
+        };
+
+        res.status(201).json({ conversation: normalized, isNew: true });
     } catch (err) {
         next(err);
     }
@@ -85,7 +94,11 @@ const getConversations = async (req, res, next) => {
                         isRead: false,
                     },
                 });
-                return { ...conv, unreadCount };
+                return {
+                    ...conv,
+                    unreadCount,
+                    participants: [conv.participantOne, conv.participantTwo]
+                };
             })
         );
 

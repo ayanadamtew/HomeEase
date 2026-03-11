@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { propertiesAPI, servicesAPI, bookingsAPI, messagesAPI, usersAPI } from '@/lib/api';
+import { propertiesAPI, servicesAPI, bookingsAPI, messagesAPI } from '@/lib/api';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { Building2, Wrench, MessageSquare, Calendar, Loader2, Plus, Clock, MapPin, CheckCircle2, ChevronRight, LayoutDashboard, Settings, ListPlus, Star } from 'lucide-react';
@@ -25,12 +25,30 @@ export default function DashboardPage() {
 
         const fetchData = async () => {
             try {
-                if (user.role === 'LANDLORD' || user.role === 'ADMIN') { const p = await propertiesAPI.getMyProperties(); setProperties(p.data.properties); }
-                if (user.role === 'PROVIDER' || user.role === 'ADMIN') { try { const sp = await servicesAPI.getMyProfile(); setServiceProfile(sp.data.profile); } catch (e) { } }
-                const [bRes, mRes] = await Promise.all([bookingsAPI.getMyBookings(), messagesAPI.getConversations()]);
-                setBookings(bRes.data.bookings); setMessages(mRes.data.conversations);
-            } catch (err) { }
-            finally { setLoadingData(false); }
+                const requests = [];
+
+                // Fetch properties if landlord/admin
+                if (user.role === 'LANDLORD' || user.role === 'ADMIN') {
+                    requests.push(propertiesAPI.getMyListings().then(res => setProperties(res.data.properties)));
+                }
+
+                // Fetch service profile if provider/admin
+                if (user.role === 'PROVIDER' || user.role === 'ADMIN') {
+                    requests.push(servicesAPI.getMyProfile().then(res => setServiceProfile(res.data.profile)).catch(() => { }));
+                }
+
+                // Fetch bookings (role-aware) and messages
+                const bookingParams = user.role === 'PROVIDER' ? { role: 'provider' } : { role: 'client' };
+                requests.push(bookingsAPI.getAll(bookingParams).then(res => setBookings(res.data.bookings)));
+                requests.push(messagesAPI.getConversations().then(res => setMessages(res.data.conversations)));
+
+                await Promise.all(requests);
+            } catch (err) {
+                console.error('Dashboard fetch error:', err);
+                toast.error('Failed to load some dashboard data');
+            } finally {
+                setLoadingData(false);
+            }
         };
         fetchData();
     }, [user, authLoading]);
@@ -117,8 +135,15 @@ export default function DashboardPage() {
                                                     {b.serviceProfile?.user?.name?.[0] || 'S'}
                                                 </div>
                                                 <div className="flex-1 min-w-0 text-center sm:text-left">
-                                                    <h4 className="font-bold text-gray-900 truncate">{b.serviceProfile?.serviceType || 'Service Booking'}</h4>
-                                                    <p className="text-sm font-medium text-gray-500 flex items-center justify-center sm:justify-start gap-1.5 mt-1"><Clock className="w-3.5 h-3.5" /> {new Date(b.startTime).toLocaleString()} - {new Date(b.endTime).toLocaleTimeString()}</p>
+                                                    <h4 className="font-bold text-gray-900 truncate">
+                                                        {user.role === 'PROVIDER' ? b.client?.name : (b.serviceProfile?.serviceType || 'Service Booking')}
+                                                    </h4>
+                                                    <p className="text-sm font-medium text-gray-500 flex items-center justify-center sm:justify-start gap-1.5 mt-1">
+                                                        <Clock className="w-3.5 h-3.5" />
+                                                        {user.role === 'PROVIDER' ? 'Booked by client' : `With ${b.serviceProfile?.user?.name || 'Provider'}`}
+                                                        <span className="text-gray-300 mx-1">•</span>
+                                                        {new Date(b.startTime).toLocaleString()}
+                                                    </p>
                                                 </div>
                                                 <div className="flex shrink-0">
                                                     <span className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider border ${b.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-200' : b.status === 'CONFIRMED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
@@ -217,8 +242,8 @@ export default function DashboardPage() {
                                 ) : (
                                     <div className="space-y-3">
                                         {messages.slice(0, 5).map(c => {
-                                            const otherUser = c.participants.find(p => p.id !== user.id) || c.participants[0];
-                                            const lastMsg = c.messages[0];
+                                            const otherUser = c.participants?.find(p => p.id !== user.id) || c.participants?.[0] || { name: 'User' };
+                                            const lastMsg = c.messages?.[0];
                                             return (
                                                 <Link key={c.id} href={`/messages?conv=${c.id}`} className="flex items-center gap-4 p-4 border border-gray-100 rounded-2xl hover:bg-gray-50 hover:border-gray-200 transition-colors group">
                                                     <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center font-bold text-lg group-hover:bg-indigo-600 group-hover:text-white transition-colors">{otherUser.name?.[0]}</div>
