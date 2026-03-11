@@ -20,7 +20,7 @@ export default function HomePage() {
             <h1 className="text-5xl sm:text-7xl font-headings font-extrabold leading-tight tracking-tight animate-fade-up" style={{ animationDelay: '0.1s' }}>
               <span className="text-gray-900">Find your</span>
               <br />
-              <span className="bg-gradient-to-r from-indigo-600 to-teal-500 bg-clip-text text-transparent">perfect home</span>
+              <span className="text-teal-500">perfect home</span>
               <br />
               <span className="text-gray-900">& services</span>
             </h1>
