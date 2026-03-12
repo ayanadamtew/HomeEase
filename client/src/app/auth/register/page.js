@@ -71,7 +71,7 @@ export default function RegisterPage() {
                                 <input
                                     type="text" required
                                     value={name} onChange={(e) => setName(e.target.value)}
-                                    placeholder="John Doe"
+                                    placeholder="Ayana D"
                                     className="input !pl-11"
                                 />
                             </div>
@@ -131,8 +131,8 @@ function RoleCard({ icon, label, active, onClick }) {
             type="button"
             onClick={onClick}
             className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${active
-                    ? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-sm'
-                    : 'bg-white border-gray-200 text-gray-500 hover:border-indigo-300 hover:bg-gray-50'
+                ? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-sm'
+                : 'bg-white border-gray-200 text-gray-500 hover:border-indigo-300 hover:bg-gray-50'
                 }`}
         >
             <div className={active ? 'text-indigo-600' : 'text-gray-400'}>{icon}</div>

@@ -28,21 +28,26 @@ export default function RootLayout({ children }) {
       <body className={`${inter.variable} ${jakarta.variable} font-body antialiased min-h-screen flex flex-col`}>
         <AuthProvider>
           <Toaster
-            position="top-center"
+            position="bottom-left"
             toastOptions={{
-              duration: 3000,
+              duration: 4000,
               style: {
-                background: '#1E293B',
+                background: '#0F172A',
                 color: '#FFFFFF',
-                borderRadius: '12px',
-                border: 'none',
+                borderRadius: '16px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
                 fontSize: '14px',
-                fontWeight: '500',
-                padding: '14px 20px',
-                boxShadow: '0 10px 25px rgba(15, 23, 42, 0.15)',
+                fontWeight: '600',
+                padding: '16px 24px',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+                backdropFilter: 'blur(10px)',
               },
-              success: { iconTheme: { primary: '#10B981', secondary: '#fff' } },
-              error: { iconTheme: { primary: '#F43F5E', secondary: '#fff' } },
+              success: {
+                iconTheme: { primary: '#F59E0B', secondary: '#0F172A' },
+              },
+              error: {
+                iconTheme: { primary: '#F43F5E', secondary: '#FFFFFF' }
+              },
             }}
           />
           <Navbar />

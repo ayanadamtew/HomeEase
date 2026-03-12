@@ -1,7 +1,15 @@
+"use client";
+
 import Link from 'next/link';
 import { Building2, Wrench, ArrowRight, Shield, Star, Users, Sparkles, CheckCircle2, Heart, Clock, Zap } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 export default function HomePage() {
+  const { scrollYProgress } = useScroll();
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -200]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const y3 = useTransform(scrollYProgress, [0, 1], [0, -150]);
+
   return (
     <div>
       {/* ── Hero ───────────────────────────────────────── */}
@@ -26,7 +34,7 @@ export default function HomePage() {
             </h1>
 
             <p className="mt-8 text-lg text-gray-500 leading-relaxed max-w-xl animate-fade-up" style={{ animationDelay: '0.2s' }}>
-              Curated rental properties and verified local service providers — a modern ecosystem designed for comfortable living.
+              Skip the stress of house hunting. Find verified rentals and top-rated home services in one seamless platform.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3 animate-fade-up" style={{ animationDelay: '0.3s' }}>
@@ -50,19 +58,60 @@ export default function HomePage() {
               </div>
               <div>
                 <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />)}
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 text-amber-500 fill-amber-500" />)}
                 </div>
                 <p className="text-gray-500 text-sm mt-0.5"><b className="text-gray-800">4.9/5</b> from 2,400+ reviews</p>
               </div>
             </div>
           </div>
 
-          {/* Stats cards (right side on desktop) */}
-          <div className="hidden lg:block absolute right-8 top-1/2 -translate-y-1/2">
-            <div className="space-y-4 animate-fade-up" style={{ animationDelay: '0.5s' }}>
-              <StatCard number="500+" label="Active Listings" emoji="🏠" color="indigo" />
-              <StatCard number="200+" label="Verified Providers" emoji="⭐" color="teal" />
-              <StatCard number="98%" label="Satisfaction Rate" emoji="💚" color="emerald" />
+          {/* ── Hero Visuals (Mockups & Photos) ── */}
+          <div className="mt-16 lg:mt-0 lg:absolute lg:right-[-5%] lg:top-1/2 lg:-translate-y-1/2 lg:w-[55%] h-[400px] sm:h-[500px] lg:h-[80%] pointer-events-none">
+            <div className="relative w-full h-full flex flex-col items-center lg:block">
+              {/* Product Preview Mockup */}
+              <motion.div
+                style={{ y: y1 }}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 }}
+                className="absolute top-0 lg:top-[10%] left-1/2 -translate-x-1/2 lg:left-0 z-30 w-[280px] sm:w-[340px] lg:w-[380px] pointer-events-auto"
+              >
+                <div className="glass-morphism p-2 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl rotate-[-2deg] hover:rotate-0 transition-transform duration-500">
+                  <img src="/images/property_mockup.png" alt="Property Mockup" className="rounded-[1.5rem] lg:rounded-[2rem] w-full" />
+                </div>
+              </motion.div>
+
+              {/* Human Connection Asset */}
+              <motion.div
+                style={{ y: y2 }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.7 }}
+                className="absolute top-20 lg:bottom-[5%] right-1/2 translate-x-1/2 lg:right-0 z-10 w-[320px] sm:w-[440px] lg:w-[500px] pointer-events-auto opacity-60 lg:opacity-100"
+              >
+                <div className="p-2 lg:p-3 bg-white rounded-[2rem] lg:rounded-[3rem] shadow-2xl rotate-[1deg] hover:rotate-0 transition-transform duration-500 overflow-hidden">
+                  <img src="/images/hero_human.png" alt="Happy Living" className="rounded-[1.5rem] lg:rounded-[2.5rem] w-full h-[240px] sm:h-[320px] lg:h-[400px] object-cover" />
+                </div>
+              </motion.div>
+
+              {/* Repositioned Stat Card */}
+              <motion.div
+                style={{ y: y3 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.9 }}
+                className="hidden sm:flex absolute lg:top-[5%] lg:right-[10%] -top-10 right-0 z-40 pointer-events-auto"
+              >
+                <StatCard number="10,000+" label="Happy Homeowners" emoji="✨" color="amber" />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.1 }}
+                className="hidden lg:flex absolute bottom-[20%] left-[15%] z-40 pointer-events-auto"
+              >
+                <StatCard number="200+" label="Verified Providers" emoji="⭐" color="teal" />
+              </motion.div>
             </div>
           </div>
         </div>
