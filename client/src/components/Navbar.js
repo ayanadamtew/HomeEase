@@ -48,7 +48,7 @@ export default function Navbar() {
                                 <Link href="/auth/login" className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors rounded-lg hover:bg-gray-50">
                                     Log in
                                 </Link>
-                                <Link href="/auth/register" className="btn-primary !px-5 !py-2.5 !text-sm">
+                                <Link href="/auth/register" className="btn-accent !px-5 !py-2.5 !text-sm">
                                     Get Started
                                 </Link>
                             </div>

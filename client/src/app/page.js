@@ -30,7 +30,7 @@ export default function HomePage() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3 animate-fade-up" style={{ animationDelay: '0.3s' }}>
-              <Link href="/properties" className="btn-primary !py-3.5 !px-7 !text-[15px]">
+              <Link href="/properties" className="btn-accent !py-3.5 !px-7 !text-[15px]">
                 <Building2 className="w-5 h-5" />
                 Browse Properties
                 <ArrowRight className="w-4 h-4" />
@@ -72,14 +72,14 @@ export default function HomePage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-5 sm:px-8">
           <div className="text-center mb-14">
-            <span className="badge bg-indigo-50 text-indigo-600 mb-4">How It Works</span>
+            <span className="badge bg-blue-50 text-blue-600 mb-4">How It Works</span>
             <h2 className="text-3xl sm:text-4xl font-headings font-bold text-gray-900 tracking-tight">Get started in three simple steps</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 stagger">
-            <StepCard step="1" icon={<Building2 className="w-6 h-6" />} title="Browse & Discover" desc="Explore curated rental properties and vetted service providers in your area." color="indigo" />
+            <StepCard step="1" icon={<Building2 className="w-6 h-6" />} title="Browse & Discover" desc="Explore curated rental properties and vetted service providers in your area." color="blue" />
             <StepCard step="2" icon={<Heart className="w-6 h-6" />} title="Connect & Book" desc="Message landlords or book service professionals directly through the platform." color="teal" />
-            <StepCard step="3" icon={<CheckCircle2 className="w-6 h-6" />} title="Move In & Enjoy" desc="Settle into your new home with reliable services just a click away." color="emerald" />
+            <StepCard step="3" icon={<CheckCircle2 className="w-6 h-6" />} title="Move In & Enjoy" desc="Settle into your new home with reliable services just a click away." color="teal" />
           </div>
         </div>
       </section>
@@ -106,12 +106,12 @@ export default function HomePage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-5 sm:px-8">
           <div className="text-center mb-14">
-            <span className="badge bg-indigo-50 text-indigo-600 mb-4">Why HomeEase</span>
+            <span className="badge bg-blue-50 text-blue-600 mb-4">Why HomeEase</span>
             <h2 className="text-3xl sm:text-4xl font-headings font-bold text-gray-900 tracking-tight">Built for absolute convenience</h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 stagger">
-            <FeatureCard icon={<Shield className="w-6 h-6 text-indigo-600" />} title="Verified Providers" desc="Every provider is background-checked and reviewed by the community." color="indigo" />
+            <FeatureCard icon={<Shield className="w-6 h-6 text-blue-600" />} title="Verified Providers" desc="Every provider is background-checked and reviewed by the community." color="blue" />
             <FeatureCard icon={<Star className="w-6 h-6 text-amber-500" />} title="Transparent Reviews" desc="Read honest reviews from real users before making any decision." color="amber" />
             <FeatureCard icon={<Users className="w-6 h-6 text-teal-600" />} title="All-in-One Platform" desc="Find your home and all the services you need, all in one place." color="teal" />
           </div>
@@ -130,10 +130,10 @@ export default function HomePage() {
               <h2 className="text-3xl sm:text-4xl font-headings font-bold text-white tracking-tight mb-4">Ready to get started?</h2>
               <p className="text-indigo-200 mt-3 max-w-md mx-auto text-lg">Join thousands of happy users who found their perfect home and trusted service providers.</p>
               <div className="flex flex-wrap justify-center gap-4 mt-10">
-                <Link href="/auth/register" className="inline-flex items-center gap-2 bg-white text-indigo-700 hover:bg-gray-50 font-semibold py-3.5 px-8 rounded-lg transition-all shadow-lg shadow-indigo-900/20 hover:shadow-xl">
+                <Link href="/auth/register" className="btn-accent !px-8 !py-3.5 shadow-lg shadow-amber-900/10">
                   Create Free Account <ArrowRight className="w-4 h-4" />
                 </Link>
-                <Link href="/properties" className="inline-flex items-center gap-2 bg-transparent text-white border border-white/30 hover:bg-white/10 font-semibold py-3.5 px-8 rounded-lg transition-all">
+                <Link href="/properties" className="inline-flex items-center gap-2 bg-white/10 text-white border border-white/30 hover:bg-white/20 font-semibold py-3.5 px-8 rounded-lg transition-all backdrop-blur-sm">
                   Browse Properties
                 </Link>
               </div>
