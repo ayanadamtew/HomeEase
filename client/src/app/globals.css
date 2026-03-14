@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Hide Next.js dev indicator */
+nextjs-portal, #nextjs-portal {
+  display: none !important;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {

@@ -28,8 +28,8 @@ export default function Navbar() {
                 <div className="flex items-center justify-between h-[72px]">
 
                     <Link href="/" className="flex items-center gap-3 group">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center rounded-xl transition-transform group-hover:scale-105 shadow-md shadow-blue-200">
-                            <Home className="w-5 h-5 text-white" />
+                        <div className="w-10 h-10 bg-gradient-to-br flex items-center justify-center rounded-xl transition-transform group-hover:scale-105 shadow-md shadow-blue-200 overflow-hidden">
+                            <img src="/favicon.png" alt="HomeEase Logo" className="w-6 h-6 object-contain" />
                         </div>
                         <span className="text-xl font-headings font-bold text-gray-900 tracking-tight">Home<span className="text-blue-600">Ease</span></span>
                     </Link>

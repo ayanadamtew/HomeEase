@@ -9,8 +9,8 @@ export default function Footer() {
                     {/* Brand */}
                     <div className="col-span-1 md:col-span-2">
                         <div className="flex items-center gap-3 mb-6">
-                            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center rounded-xl shadow-lg shadow-indigo-500/20">
-                                <Home className="w-5 h-5 text-white" />
+                            <div className="w-10 h-10 bg-gradient-to-br flex items-center justify-center rounded-xl shadow-lg shadow-indigo-500/20 overflow-hidden">
+                                <img src="/favicon.ico" alt="HomeEase Logo" className="w-6 h-6 object-contain" />
                             </div>
                             <span className="text-xl font-headings font-bold text-white tracking-tight">Home<span className="text-indigo-400">Ease</span></span>
                         </div>
